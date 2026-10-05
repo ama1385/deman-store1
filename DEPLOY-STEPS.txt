@@ -1,0 +1,11 @@
+DEMAN.STORE — خطوات Vercel المختصرة
+
+1) فك الضغط عن DEMAN-VERCEL-READY.zip.
+2) ارفع المجلد إلى Vercel أو نفذ: npx vercel
+3) Vercel > Project > Storage > Create Database > Blob > Private > Connect.
+4) Project > Settings > Environment Variables:
+   ADMIN_PASSWORD = كلمة مرور لوحة التحكم
+   SESSION_SECRET = نص عشوائي طويل
+5) Redeploy / أو: npx vercel --prod
+6) اختبر / ثم /admin/ ثم تعديل منتج وصورة.
+7) لا تحذف Cloudflare إلا بعد نجاح الاختبارات.

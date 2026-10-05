@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<title>لوحة التحكم | Deman.Store</title>
+<meta name="theme-color" content="#050407">
+<link rel="icon" href="../images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="stylesheet" href="../css/fonts.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="bg" aria-hidden="true"><div class="glow g1"></div><div class="glow g2"></div></div>
+
+<!-- ============ LOGIN ============ -->
+<section id="vLogin" class="login" hidden>
+  <form id="loginForm" class="card login-card" autocomplete="on">
+    <img src="../images/logo.png" alt="" class="login-logo" width="72" height="72">
+    <h1>لوحة التحكم</h1>
+    <p class="mut">Deman.Store — دخول المشرف</p>
+    <label class="f"><span>كلمة المرور</span>
+      <span class="pw-wrap">
+        <input id="pw" type="password" name="password" autocomplete="current-password" required dir="ltr">
+        <button type="button" id="pwToggle" class="pw-eye" aria-label="إظهار كلمة المرور" aria-controls="pw" aria-pressed="false" title="إظهار كلمة المرور">
+          <svg class="ic-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="ic-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-6.4 0-10-7-10-7a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.4 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+        </button>
+      </span>
+    </label>
+    <p id="loginErr" class="err" role="alert" hidden></p>
+    <button class="btn btn-p w100" type="submit" id="loginBtn">دخول</button>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="vApp" hidden>
+  <header class="top"><div class="wrap top-in">
+    <a class="brand" href="/admin/"><img src="../images/logo.png" alt="" width="34" height="34"><span><b>Deman<i>.Store</i></b><small>لوحة التحكم</small></span></a>
+    <nav class="tabs" id="tabs">
+      <button data-v="products" class="on">المنتجات</button>
+      <button data-v="settings">الإعدادات</button>
+    </nav>
+    <div class="top-act">
+      <a class="btn btn-o sm" href="/" target="_blank" rel="noopener" title="عرض المتجر">عرض المتجر</a>
+      <button class="btn btn-o sm" id="logoutBtn">خروج</button>
+    </div>
+  </div></header>
+
+  <main class="wrap main">
+    <!-- products -->
+    <section id="vProducts">
+      <div class="sec-h">
+        <div><h2>المنتجات</h2><p class="mut" id="pCount"></p></div>
+        <button class="btn btn-p" id="addBtn">+ إضافة منتج</button>
+      </div>
+      <div id="pList" class="plist"><p class="mut">جاري التحميل…</p></div>
+    </section>
+
+    <!-- settings -->
+    <section id="vSettings" hidden>
+      <form id="setForm">
+        <div class="sec-h"><div><h2>الإعدادات</h2><p class="mut">إعدادات المتجر العامة</p></div></div>
+
+        <div class="card pad">
+          <h3>معلومات المتجر</h3>
+          <div class="grid2">
+            <label class="f"><span>اسم المتجر</span><input name="store_name" maxlength="200"></label>
+            <label class="f"><span>الاسم بالعربي</span><input name="brand_ar" maxlength="200"></label>
+            <label class="f"><span>رابط الديسكورد</span><input name="discord_invite" type="url" dir="ltr" placeholder="https://discord.gg/..."></label>
+            <label class="f"><span>العملة الافتراضية</span><input name="currency" maxlength="20" placeholder="﷼"></label>
+            <label class="f"><span>الدومين (يظهر بالفوتر)</span><input name="domain" dir="ltr"></label>
+            <label class="f"><span>عنوان الواجهة</span><input name="hero_title" maxlength="200"></label>
+          </div>
+          <label class="f"><span>وصف الواجهة</span><textarea name="hero_subtitle" rows="2"></textarea></label>
+          <label class="f"><span>شريط الإعلان (اتركه فاضي لإخفائه)</span><input name="announcement" maxlength="400"></label>
+        </div>
+
+        <div class="card pad">
+          <div class="row-h"><h3>طرق الدفع</h3><button type="button" class="btn btn-o sm" id="addPay">+ إضافة</button></div>
+          <p class="mut sm-t">الأيقونة: إيموجي/نص قصير، أو ارفع صورة صغيرة.</p>
+          <div id="payList" class="rep"></div>
+        </div>
+
+        <div class="card pad">
+          <div class="row-h"><h3>الفئات</h3><button type="button" class="btn btn-o sm" id="addCat">+ إضافة</button></div>
+          <p class="mut sm-t">فئة «الكل» تنضاف تلقائياً. المعرّف بالإنجليزي (مثل performance).</p>
+          <div id="catList" class="rep"></div>
+        </div>
+
+        <div class="card pad">
+          <div class="row-h"><h3>الأسئلة الشائعة</h3><button type="button" class="btn btn-o sm" id="addFaq">+ إضافة</button></div>
+          <div id="faqList" class="rep"></div>
+        </div>
+
+        <div class="savebar"><button class="btn btn-p" type="submit" id="saveSet">حفظ الإعدادات</button></div>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- ============ PRODUCT EDITOR ============ -->
+<div class="modal" id="ed" hidden>
+  <form class="sheet" id="edForm" novalidate>
+    <div class="sheet-h">
+      <h3 id="edTitle">منتج جديد</h3>
+      <button type="button" class="x" id="edClose" aria-label="إغلاق">✕</button>
+    </div>
+    <div class="sheet-b">
+      <label class="f"><span>اسم المنتج *</span><input name="name" required maxlength="200"></label>
+      <label class="f"><span>الوصف</span><textarea name="description" rows="6" maxlength="5000"></textarea></label>
+      <div class="grid3">
+        <label class="f"><span>السعر</span><input name="price" type="number" step="0.01" min="0" inputmode="decimal" dir="ltr"></label>
+        <label class="f"><span>العملة</span><input name="currency" maxlength="20" placeholder="الافتراضية"></label>
+        <label class="f"><span>الترتيب</span><input name="sort" type="number" step="1" inputmode="numeric" dir="ltr"></label>
+      </div>
+      <label class="f"><span>المدة</span><input name="duration" maxlength="60" placeholder="مثلاً: شهر واحد"></label>
+      <div class="picks" id="durPicks">
+        <button type="button" data-d="يوم واحد">يوم</button><button type="button" data-d="أسبوع واحد">أسبوع</button>
+        <button type="button" data-d="شهر واحد">شهر</button><button type="button" data-d="سنة واحدة">سنة</button>
+      </div>
+      <div class="grid2">
+        <label class="f"><span>الفئة</span><select name="category" id="catSel"></select></label>
+        <label class="f"><span>رابط الشراء</span><input name="buy_link" type="url" dir="ltr" placeholder="افتراضي: رابط الديسكورد"></label>
+      </div>
+
+      <div class="f"><span>الصور</span>
+        <div class="imgs" id="imgs"></div>
+        <label class="upl"><input type="file" id="imgFile" accept="image/png,image/jpeg,image/webp" hidden>
+          <span class="btn btn-o sm">رفع صورة</span><small class="mut">PNG / JPG / WEBP — حتى 2MB</small></label>
+        <p class="err" id="imgErr" hidden></p>
+      </div>
+
+      <div class="toggles">
+        <label class="tg"><input type="checkbox" name="visible"><i></i><span>ظاهر في المتجر</span></label>
+        <label class="tg"><input type="checkbox" name="featured"><i></i><span>مميّز</span></label>
+        <label class="tg"><input type="checkbox" name="demo"><i></i><span>وسم «مثال»</span></label>
+      </div>
+
+      <details class="adv">
+        <summary>خيارات إضافية</summary>
+        <label class="f"><span>وصف مختصر (يظهر بالبطاقة)</span><input name="short" maxlength="400"></label>
+        <div class="grid2">
+          <label class="f"><span>السعر قبل الخصم</span><input name="old_price" type="number" step="0.01" min="0" dir="ltr"></label>
+          <label class="f"><span>شارة (مثل: جديد)</span><input name="badge" maxlength="40"></label>
+        </div>
+        <label class="f"><span>المميزات (سطر لكل ميزة)</span><textarea name="features" rows="4"></textarea></label>
+        <label class="f"><span>وش يشمل (سطر لكل عنصر)</span><textarea name="included" rows="3"></textarea></label>
+        <label class="f"><span>نص التسليم</span><input name="delivery" maxlength="500"></label>
+      </details>
+    </div>
+    <div class="sheet-f">
+      <button type="button" class="btn btn-o" id="edCancel">إلغاء</button>
+      <button type="submit" class="btn btn-p" id="edSave">حفظ</button>
+    </div>
+  </form>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<script src="admin.js"></script>
+</body>
+</html>

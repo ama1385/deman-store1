@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Deman.Store | متجر ديمان</title>
+<meta name="description" content="Deman.Store — متجر ديمان للبرامج والمنتجات الرقمية، شراء وتسليم فوري عبر ديسكورد.">
+<meta name="theme-color" content="#050407">
+<meta property="og:title" content="Deman.Store | متجر ديمان">
+<meta property="og:description" content="برامج ومنتجات رقمية — تسليم فوري عبر ديسكورد.">
+<meta property="og:image" content="images/logo-512.png">
+<link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="images/favicon-180.png">
+<link rel="preload" href="fonts/Tajawal-800-arabic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="bgfx" aria-hidden="true"><div class="glow g1"></div><div class="glow g2"></div></div>
+
+<div class="demo-flag" hidden>نسخة تجريبية — المنتجات والتقييمات الحالية أمثلة (PLACEHOLDER) وبتُستبدل بالبيانات الحقيقية</div>
+
+<header class="nav" id="nav"><div class="wrap nav-in">
+  <a class="brand" href="index.html" aria-label="Deman.Store">
+    <img src="images/logo.png" alt="" width="40" height="40">
+    <span class="brand-t"><b>Deman<i>.Store</i></b><small class="js-brand-ar">متجر ديمان</small></span>
+  </a>
+  <nav class="links" id="links">
+    <a href="index.html#top">الرئيسية</a><a href="index.html#products">المنتجات</a><a href="index.html#how">طريقة الشراء</a><a href="index.html#reviews">التقييمات</a><a href="index.html#faq">الأسئلة</a>
+  </nav>
+  <div class="nav-act">
+    <a class="btn btn-discord js-discord" href="index.html#" target="_blank" rel="noopener"><svg data-ic="discord"></svg><span>ديسكورد</span></a>
+    <button class="burger" id="burger" aria-label="القائمة" aria-expanded="false"><span></span><span></span></button>
+  </div>
+</div></header>
+
+<main id="top">
+<!-- ============ HERO ============ -->
+<section class="hero"><div class="wrap hero-in">
+  <div class="hero-txt">
+    <span class="pill rv"><i class="dot"></i><span class="js-brand-ar">متجر ديمان</span> · متصل الآن</span>
+    <p class="kicker rv js-hero-title">المتجر الرقمي</p>
+    <h1 class="rv"><span class="h-big">DEMAN</span><span class="h-sub">.STORE</span></h1>
+    <span class="line rv"></span>
+    <p class="lead rv js-hero-sub"></p>
+    <a class="cta-card rv js-discord" href="index.html#" target="_blank" rel="noopener">
+      <span class="cta-ic"><svg data-ic="discord"></svg></span>
+      <span class="cta-t"><b>اشترِ عبر ديسكورد</b><small>انضم للسيرفر واستلم فوراً</small></span>
+      <span class="cta-arr"><svg data-ic="arrow"></svg></span>
+    </a>
+    <div class="hero-btns rv">
+      <a class="btn btn-o" href="index.html#products">منتجاتنا <svg data-ic="arrowl"></svg></a>
+      <a class="btn btn-o js-discord" href="index.html#" target="_blank" rel="noopener">سيرفر الديسكورد</a>
+    </div>
+  </div>
+
+  <div class="hero-art">
+    <div class="orb rv">
+      <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
+      <img src="images/logo-512.png" alt="شعار Deman.Store" width="512" height="512">
+    </div>
+    <p class="exp-t rv">تجربة ديمان</p>
+    <div class="exp">
+      <div class="exp-c rv"><span class="ic"><svg data-ic="bolt"></svg></span><div><b>تسليم فوري</b><small>٢٤/٧ عبر ديسكورد</small></div></div>
+      <div class="exp-c rv"><span class="ic"><svg data-ic="check"></svg></span><div><b>تفعيل سهل</b><small>شرح خطوة بخطوة</small></div></div>
+      <div class="exp-c rv"><span class="ic"><svg data-ic="refresh"></svg></span><div><b>تحديثات مستمرة</b><small>دايم على آخر نسخة</small></div></div>
+    </div>
+  </div>
+</div>
+<div class="wrap"><div class="hr"></div></div>
+</section>
+
+<!-- ============ PRODUCTS ============ -->
+<section id="products" class="sec"><div class="wrap">
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>المنتجات</span><h2>أحدث <em>المنتجات</em></h2><p>منتجات رقمية مختارة — اختر اللي يناسبك واشترِ مباشرة من سيرفر الديسكورد.</p></div>
+  <div class="filters rv" id="filters"></div>
+  <div class="grid" id="allGrid"></div>
+</div></section>
+
+<!-- ============ HOW ============ -->
+<section id="how" class="sec"><div class="wrap">
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>طريقة الشراء</span><h2>ثلاث خطوات <em>وتستلم</em></h2><p>الشراء والتسليم والدعم كله داخل سيرفر الديسكورد.</p></div>
+  <div class="steps">
+    <div class="step rv"><span class="num">01</span><span class="ic"><svg data-ic="bag"></svg></span><h3>اختر منتجك</h3><p>تصفّح المنتجات هنا وشوف التفاصيل والسعر.</p></div>
+    <div class="step rv"><span class="num">02</span><span class="ic"><svg data-ic="discord"></svg></span><h3>ادخل الديسكورد</h3><p>اضغط «اشترِ» وافتح تذكرة شراء في السيرفر.</p></div>
+    <div class="step rv"><span class="num">03</span><span class="ic"><svg data-ic="bolt"></svg></span><h3>استلم فوراً</h3><p>بعد تأكيد الدفع يوصلك المنتج مع شرح التفعيل.</p></div>
+  </div>
+</div></section>
+
+<!-- ============ REVIEWS ============ -->
+<section id="reviews" class="sec"><div class="wrap">
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>التقييمات</span><h2>آراء <em>العملاء</em></h2><p>تقييمات تجريبية (PLACEHOLDER) — بتُستبدل بتقييمات حقيقية.</p></div>
+  <div class="revs" id="revs"></div>
+</div></section>
+
+<!-- ============ FAQ ============ -->
+<section id="faq" class="sec"><div class="wrap narrow">
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>الأسئلة الشائعة</span><h2>عندك <em>سؤال؟</em></h2></div>
+  <div class="faq" id="faqList"></div>
+</div></section>
+
+<!-- ============ CTA ============ -->
+<section class="sec"><div class="wrap">
+  <div class="band rv">
+    <img src="images/logo.png" alt="" class="band-logo">
+    <h2>جاهز تبدأ؟</h2>
+    <p>ادخل سيرفر الديسكورد وكلّمنا مباشرة — الشراء والتسليم والدعم كله هناك.</p>
+    <a class="btn btn-w js-discord" href="index.html#" target="_blank" rel="noopener"><svg data-ic="discord"></svg>انضم لسيرفر Deman.Store</a>
+  </div>
+</div></section>
+</main>
+
+<footer class="foot"><div class="wrap">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a class="brand" href="index.html"><img src="images/logo.png" alt="" width="40" height="40"><span class="brand-t"><b>Deman<i>.Store</i></b><small class="js-brand-ar">متجر ديمان</small></span></a>
+      <p>متجر رقمي سعودي للبرامج والمنتجات الرقمية — تسليم فوري ودعم مباشر عبر ديسكورد.</p>
+    </div>
+    <div class="foot-col"><h4>روابط</h4><a href="index.html#products">المنتجات</a><a href="index.html#how">طريقة الشراء</a><a href="index.html#reviews">التقييمات</a><a href="index.html#faq">الأسئلة الشائعة</a></div>
+    <div class="foot-col js-pay" hidden></div>
+    <div class="foot-col"><h4>تواصل</h4><a class="js-discord" href="index.html#" target="_blank" rel="noopener">سيرفر الديسكورد</a><span class="js-domain"></span></div>
+  </div>
+  <div class="foot-bot"><span>© <span class="js-year"></span> Deman.Store — جميع الحقوق محفوظة</span><span>صُنع بـ 💜</span></div>
+</div></footer>
+
+<!-- mobile bottom bar -->
+<nav class="tabbar" aria-label="تنقل سريع">
+  <a href="index.html#top"><svg data-ic="home"></svg><span>الرئيسية</span></a>
+  <a href="index.html#products"><svg data-ic="grid"></svg><span>المنتجات</span></a>
+  <a href="index.html#reviews"><svg data-ic="star"></svg><span>التقييمات</span></a>
+  <a class="js-discord hot" href="index.html#" target="_blank" rel="noopener"><svg data-ic="discord"></svg><span>ديسكورد</span></a>
+</nav>
+<script src="js/local-seed.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
