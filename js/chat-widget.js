@@ -74,13 +74,65 @@
 
   var pending = false;
 
+  function loosenUrls(s) {
+    return String(s)
+      .replace(/\*{1,3}\s*(https?:\/\/[^\s*]+)\s*\*{1,3}/g, "$1")
+      .replace(/\*+(?=https?:\/\/)/g, "")
+      .replace(/(https?:\/\/[^\s*]+)\*+/g, "$1");
+  }
+
+  function inlineFmt(s) {
+    var html = esc(s);
+    html = html.replace(/\*\*([^*\n]+?)\*\*/g, "<strong>$1</strong>");
+    html = html.replace(/\*\*/g, "");
+    html = html.replace(/https?:\/\/[^\s<]+/g, function (url) {
+      var trail = "";
+      var cut = url.match(/^(.*?)([.,،;:!?)\]»«]+)$/);
+      if (cut && cut[1].length > 8) { url = cut[1]; trail = cut[2]; }
+      return '<a href="' + url + '" target="_blank" rel="noopener" dir="ltr">' + url + "</a>" + trail;
+    });
+    return html;
+  }
+
+  function formatReply(text) {
+    var src = loosenUrls(String(text == null ? "" : text).replace(/\r\n?/g, "\n"));
+    src = src.replace(/([^\n])[ \t]+(?=\d{1,2}[.)][ \t]+\S)/g, "$1\n");
+    var lines = src.split("\n");
+    var out = [];
+    var list = null;
+    var gap = false;
+    function closeList() {
+      if (list) { out.push(list === "ol" ? "</ol>" : "</ul>"); list = null; }
+    }
+    lines.forEach(function (line) {
+      var t = line.trim();
+      var ol = t.match(/^\d{1,2}[.)]\s+(.+)$/);
+      var ul = t.match(/^[-•]\s+(.+)$/) || t.match(/^\*\s+(.+)$/);
+      if (!t) { closeList(); gap = true; return; }
+      if (ol || ul) {
+        var kind = ol ? "ol" : "ul";
+        if (list !== kind) { closeList(); out.push(kind === "ol" ? "<ol>" : "<ul>"); list = kind; }
+        if (gap) gap = false;
+        out.push("<li>" + inlineFmt(ol ? ol[1] : ul[1]) + "</li>");
+        return;
+      }
+      closeList();
+      if (gap && out.length) out.push('<div class="deman-chat-gap"></div>');
+      gap = false;
+      out.push("<p>" + inlineFmt(line.trim()) + "</p>");
+    });
+    closeList();
+    return out.join("");
+  }
+
   function bubble(role, text, extra) {
     var el = document.createElement("div");
     el.className = "deman-chat-msg " + (role === "user" ? "is-user" : "is-bot") + (extra ? " " + extra : "");
     var body = document.createElement("div");
     body.className = "deman-chat-bubble";
     body.dir = "auto";
-    body.textContent = text;
+    if (role === "assistant" && extra !== "is-typing") body.innerHTML = formatReply(text);
+    else body.textContent = text;
     el.appendChild(body);
     return el;
   }

@@ -52,6 +52,15 @@
 .deman-chat-bubble{
   max-width:86%;padding:10px 12px;border-radius:14px;font-size:14.5px;line-height:1.75;white-space:pre-wrap;word-break:break-word;
 }
+.deman-chat-msg.is-bot .deman-chat-bubble{white-space:normal;overflow-wrap:anywhere}
+.deman-chat-bubble p{margin:0 0 .4em}
+.deman-chat-bubble p:last-child{margin-bottom:0}
+.deman-chat-bubble ol,.deman-chat-bubble ul{margin:.15em 0 .45em;padding-inline-start:1.25em}
+.deman-chat-bubble li{margin:.12em 0}
+.deman-chat-bubble li::marker{color:#d29bfd;font-weight:700}
+.deman-chat-bubble strong{font-weight:800;color:#fff}
+.deman-chat-bubble a{color:#e9d5ff;text-decoration:underline;text-underline-offset:2px;unicode-bidi:isolate}
+.deman-chat-gap{height:8px}
 .deman-chat-msg.is-user .deman-chat-bubble{
   background:linear-gradient(135deg,rgba(168,85,247,.9),rgba(124,58,237,.85));color:#fff;border-bottom-right-radius:5px;
 }
