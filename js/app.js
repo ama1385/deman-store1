@@ -71,7 +71,7 @@
   function animateCounts(root) {
     var els=$$('.js-count:not([data-done])',root||document); if(!els.length)return;
     var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function go(el){if(el.dataset.done)return;el.dataset.done='1';var end=Math.max(0,Math.floor(Number(el.dataset.count)||0));if(reduce){el.textContent=end.toLocaleString('ar-SA');el.classList.add('count-done');return;}var st=performance.now(),dur=Math.min(1600,650+end*3);function tick(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(end*e).toLocaleString('ar-SA');if(t<1)requestAnimationFrame(tick);else el.classList.add('count-done');}requestAnimationFrame(tick);}
+    function go(el){if(el.dataset.done)return;el.dataset.done='1';var end=Math.max(0,Math.floor(Number(el.dataset.count)||0));if(reduce){el.textContent=end.toLocaleString('en-US');el.classList.add('count-done');return;}var st=performance.now(),dur=Math.min(1600,650+end*3);function tick(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(end*e).toLocaleString('en-US');if(t<1)requestAnimationFrame(tick);else el.classList.add('count-done');}requestAnimationFrame(tick);}
     if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){go(e.target);io.unobserve(e.target);}});},{threshold:.4});els.forEach(function(el){io.observe(el);});}else els.forEach(go);
   }
   function nameHTML(n) {
@@ -186,7 +186,33 @@
 
   /* ===================== product page (v3) ===================== */
   function fmt(n) { var x = Number(n); return isFinite(x) ? x.toLocaleString("en-US", { maximumFractionDigits: 2 }) : esc(n); }
-  function toLatin(s) { return String(s || "").replace(/[٠-٩]/g, function (d) { return "٠١٢٣٤٥٦٧٨٩".indexOf(d); }); }
+  function toLatin(s) { return String(s || "").replace(/[٠-٩۰-۹]/g, function (d) {
+    var a="٠١٢٣٤٥٦٧٨٩", p="۰۱۲۳۴۵۶۷۸۹";
+    var i=a.indexOf(d); if(i>=0) return String(i);
+    i=p.indexOf(d); return i>=0 ? String(i) : d;
+  }); }
+  function forceLatinDigits(root) {
+    root = root || document.body;
+    if (!root) return;
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    var nodes=[], n; while ((n=walker.nextNode())) nodes.push(n);
+    nodes.forEach(function(t){
+      if(t.parentElement && /^(SCRIPT|STYLE|TEXTAREA)$/i.test(t.parentElement.tagName)) return;
+      var v=toLatin(t.nodeValue); if(v!==t.nodeValue) t.nodeValue=v;
+    });
+    if(root.querySelectorAll){
+      root.querySelectorAll('input[placeholder],input[value],option').forEach(function(el){
+        if(el.placeholder) el.placeholder=toLatin(el.placeholder);
+        if(el.tagName==='OPTION') el.textContent=toLatin(el.textContent);
+      });
+    }
+  }
+  function watchLatinDigits(){
+    forceLatinDigits(document.body);
+    if(!window.MutationObserver) return;
+    var mo=new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(x){if(x.nodeType===1||x.nodeType===3) forceLatinDigits(x.nodeType===1?x:x.parentNode);});});});
+    mo.observe(document.body,{childList:true,subtree:true,characterData:false});
+  }
   // يحوّل نص المدة (يوم واحد / 3 أشهر / سنة / 1 Year …) لعدد أيام تقريبي — للترتيب وسعر اليوم فقط
   function daysOf(p) {
     var s = toLatin((p.duration || "") + " " + (p.duration ? "" : p.name || "")).toLowerCase();
@@ -432,3 +458,8 @@
     $$(".rv").forEach(function (e) { e.classList.add("in"); });
   });
 })();
+
+
+/* V7 — force Western/English digits across the storefront */
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watchLatinDigits, { once:true });
+else watchLatinDigits();
