@@ -4,13 +4,19 @@ import { loadConfig } from './_store.js';
 import { buildSystemPrompt } from './support-knowledge.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'openai/gpt-oss-120b';
+const MODELS = [
+  { id: 'openai/gpt-oss-120b', oss: true },
+  { id: 'openai/gpt-oss-20b', oss: true },
+  { id: 'qwen/qwen3.8-27b', oss: false }
+];
 const MAX_MESSAGE_CHARS = 800;
 const MAX_HISTORY = 12;
 const MAX_TOKENS = 500;
 const GROQ_TIMEOUT_MS = 8000;
 
 const FRIENDLY_ERROR = 'عذراً، المساعد مشغول الحين. حاول مرة ثانية بعد قليل، أو كلم الدعم في سيرفر الديسكورد.';
+const RATE_LIMIT_AR = 'المساعد مزدحم الحين. حاول مرة ثانية بعد كم ثانية.';
+const RATE_LIMIT_EN = 'The assistant is busy right now. Please try again in a few seconds.';
 const TOO_LONG_ERROR = 'الرسالة طويلة أو المحادثة كبيرة. اختصر سؤالك وأرسله مرة ثانية.';
 
 const DISCORD_RE = /^https:\/\/(?:discord\.gg\/|discord\.com\/invite\/)[A-Za-z0-9-]+\/?$/;
@@ -28,8 +34,16 @@ function isEnglish(text) {
   return latin / letters.length >= 0.6;
 }
 
+function stripThinking(text) {
+  return String(text || '')
+    .replace(/<think\b[^>]*>[\s\S]*?<\/think>/gi, '')
+    .replace(/<thinking\b[^>]*>[\s\S]*?<\/thinking>/gi, '')
+    .replace(/<think\b[^>]*>[\s\S]*/gi, '')
+    .replace(/<\/think>/gi, '');
+}
+
 function cleanReply(text, english) {
-  let out = String(text || '').replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  let out = stripThinking(text).replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   out = out.replace(/overset/ig, 'Deman.Store');
   if (!out) return '';
   if (out.length > 1800) out = out.slice(0, 1800).trim();
@@ -84,6 +98,73 @@ async function readBody(request) {
   catch { return { error: 'تعذر قراءة الرسالة. أعد الإرسال.', status: 400 }; }
 }
 
+function modelBody(model, messages) {
+  const body = {
+    model: model.id,
+    messages,
+    max_completion_tokens: MAX_TOKENS,
+    temperature: 0.5
+  };
+  if (model.oss) {
+    body.reasoning_effort = 'low';
+    body.include_reasoning = false;
+  } else {
+    body.reasoning_effort = 'none';
+  }
+  return body;
+}
+
+function messageText(data) {
+  const message = data && data.choices && data.choices[0] && data.choices[0].message;
+  if (!message) return '';
+  if (typeof message.content === 'string') return message.content;
+  if (Array.isArray(message.content)) {
+    return message.content.map((part) => (part && typeof part.text === 'string' ? part.text : '')).join('\n');
+  }
+  return '';
+}
+
+async function completeWithFallback(messages, signal) {
+  let rateLimited = 0;
+  for (const model of MODELS) {
+    if (signal.aborted) break;
+    let response;
+    try {
+      response = await fetch(GROQ_URL, {
+        method: 'POST',
+        signal,
+        headers: {
+          'content-type': 'application/json',
+          authorization: `Bearer ${process.env.GROQ_API_KEY}`
+        },
+        body: JSON.stringify(modelBody(model, messages))
+      });
+    } catch (error) {
+      if (signal.aborted || error?.name === 'AbortError') break;
+      console.error('chat: fetch failed', model.id);
+      continue;
+    }
+    if (response.status === 429) {
+      rateLimited += 1;
+      console.error('chat: rate limit', model.id);
+      continue;
+    }
+    if (response.status >= 500) {
+      console.error('chat: upstream', model.id, response.status);
+      continue;
+    }
+    if (!response.ok) {
+      console.error('chat: upstream', model.id, response.status);
+      return { reply: '' };
+    }
+    const data = await response.json().catch(() => null);
+    const reply = stripThinking(messageText(data)).trim();
+    if (reply) return { reply };
+    console.error('chat: empty upstream reply', model.id);
+  }
+  return { rateLimited: rateLimited === MODELS.length };
+}
+
 export async function handleChat(request) {
   if (request.method !== 'POST') return methodNotAllowed('POST');
 
@@ -102,50 +183,23 @@ export async function handleChat(request) {
     const invite = await discordInvite();
     const latestUser = [...normalized.messages].reverse().find((m) => m.role === 'user');
     const english = isEnglish(latestUser && latestUser.content);
+    const messages = [
+      { role: 'system', content: buildSystemPrompt(invite) },
+      ...normalized.messages
+    ];
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), GROQ_TIMEOUT_MS);
-    let groqRes;
+    let result;
     try {
-      groqRes = await fetch(GROQ_URL, {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          messages: [
-            { role: 'system', content: buildSystemPrompt(invite) },
-            ...normalized.messages
-          ],
-          max_completion_tokens: MAX_TOKENS,
-          temperature: 0.5,
-          reasoning_effort: 'low',
-          include_reasoning: false
-        })
-      });
+      result = await completeWithFallback(messages, controller.signal);
     } finally {
       clearTimeout(timer);
     }
-
-    if (!groqRes.ok) {
-      console.error('chat: upstream status', groqRes.status);
-      return friendly(502);
+    if (result.rateLimited) {
+      return json({ error: english ? RATE_LIMIT_EN : RATE_LIMIT_AR }, 429);
     }
-
-    const data = await groqRes.json().catch(() => null);
-    const message = data && data.choices && data.choices[0] && data.choices[0].message;
-    let content = '';
-    if (message && typeof message.content === 'string') content = message.content;
-    else if (message && Array.isArray(message.content)) {
-      content = message.content.map((part) => (part && typeof part.text === 'string' ? part.text : '')).join('\n');
-    }
-    const reply = cleanReply(content, english);
-    if (!reply) {
-      console.error('chat: empty upstream reply');
-      return friendly(502);
-    }
+    const reply = cleanReply(result.reply, english);
+    if (!reply) return friendly(502);
     return json({ reply });
   } catch (error) {
     console.error('chat: request failed', error && error.name ? error.name : 'error');
