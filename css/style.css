@@ -610,3 +610,14 @@ body.has-mbar .discord-fab{bottom:82px}
 .purchase-toast-copy{min-width:0}.purchase-toast-copy>b{display:flex;align-items:center;gap:7px;color:#f2c7ff;font-size:14px;font-weight:900;margin-bottom:4px}.purchase-toast-confetti{font-size:13px}.purchase-toast-copy p{margin:0;color:#d8d3df;font-size:12.5px;line-height:1.5}.purchase-toast-copy p strong{color:#fff}.purchase-toast-copy a{display:block;color:#fff;font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}.purchase-toast-copy small{display:block;color:var(--mut);font-size:11px;margin-top:3px}
 @media(max-width:900px){.purchase-toast{left:12px;bottom:calc(133px + env(safe-area-inset-bottom));width:min(330px,calc(100vw - 24px));grid-template-columns:52px minmax(0,1fr);padding:12px}.purchase-toast-icon{width:48px;height:48px}.purchase-toast-icon svg{width:24px;height:24px}}
 @media(prefers-reduced-motion:reduce){.purchase-toast{transition:none}.purchase-toast.show{transform:none}}
+
+
+/* ===== V6 price + duration alignment fix ===== */
+.card-proof-slot{min-height:46px;display:flex;align-items:flex-start;justify-content:flex-start}
+.bd .price{width:100%;min-height:34px;display:flex;align-items:center;justify-content:flex-start;gap:8px;margin:4px 0 12px;direction:ltr}
+.price b{display:inline-flex;align-items:baseline;gap:5px;direction:ltr;unicode-bidi:isolate;white-space:nowrap}
+.price .price-num{font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.price b small{display:inline-block;direction:rtl;unicode-bidi:isolate;margin:0}
+.dur bdi{direction:rtl;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+.pbox small bdi{direction:rtl;unicode-bidi:isolate;font-variant-numeric:tabular-nums}
+@media(max-width:760px){.card-proof-slot{min-height:42px}.bd .price{min-height:30px}}

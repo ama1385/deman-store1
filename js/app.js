@@ -40,10 +40,15 @@
   function buyOf(p) { return (p && p.buy_link) || CFG.discord_invite || "#"; }
   function safeImg(u) { u = String(u || ""); if (location.protocol === "file:" && /^\/images\//.test(u)) u = u.slice(1); return /^(https?:\/\/|\/api\/img\/|\/?images\/)/.test(u) ? u : ""; }
   function shortOf(p) { if (p.short) return p.short; var d = String(p.description || "").split("\n")[0]; return d.length > 140 ? d.slice(0, 140) + "…" : d; }
+  function durationText(v) {
+    var s = String(v || "").trim();
+    if (/^(?:يوم واحد|١ يوم|1\s*يوم|1\s*day|one\s*day)$/i.test(s)) return "24 ساعة";
+    return s;
+  }
   function priceHTML(p) {
     var o = Number(p.old_price), n = Number(p.price), off = o > n ? Math.round((1 - n / o) * 100) : 0;
-    return '<div class="price"><b>' + esc(p.price) + '<small>' + esc(curOf(p)) + '</small></b>' +
-      (off ? '<s>' + esc(p.old_price) + ' ' + esc(curOf(p)) + '</s><span class="off">-' + off + '٪</span>' : "") + "</div>";
+    return '<div class="price"><b><span class="price-num" dir="ltr">' + esc(p.price) + '</span><small dir="rtl">' + esc(curOf(p)) + '</small></b>' +
+      (off ? '<s><span dir="ltr">' + esc(p.old_price) + '</span> ' + esc(curOf(p)) + '</s><span class="off">-' + off + '٪</span>' : "") + "</div>";
   }
   function payHTML() {
     var pm = CFG.payment_methods || [];
@@ -78,9 +83,9 @@
     var url = "product.html?id=" + encodeURIComponent(p.id);
     return '<article class="card rv">' + (p.badge && p.badge === p.duration ? "" : badgeHTML(p)) + (p.demo ? '<span class="demo">مثال</span>' : '') +
       '<a class="th" href="' + url + '" aria-label="' + esc(p.name) + '"><img loading="lazy" src="' + esc(img) + '" alt="' + esc(p.name) + '">' +
-      (p.duration ? '<span class="dur">' + ICONS.clock + esc(p.duration) + '</span>' : '') + '</a>' +
+      (p.duration ? '<span class="dur">' + ICONS.clock + '<bdi>' + esc(durationText(p.duration)) + '</bdi></span>' : '') + '</a>' +
       '<div class="bd"><h3><a href="' + url + '">' + nameHTML(p.name) + '</a></h3>' +
-      '<p class="ds">' + esc(shortOf(p)) + "</p>" + salesHTML(p,'card-sales') + priceHTML(p) +
+      '<p class="ds">' + esc(shortOf(p)) + "</p>" + '<div class="card-proof-slot">' + salesHTML(p,'card-sales') + '</div>' + priceHTML(p) +
       '<div class="card-act"><a class="btn btn-o" href="' + esc(buyOf(p)) + '" target="_blank" rel="noopener">' + ICONS.discord + 'اشترِ عبر ديسكورد</a>' +
       '<a class="btn btn-o btn-i" href="' + url + '" aria-label="التفاصيل" title="التفاصيل">' + ICONS.eye + '</a></div></div></article>';
   }
@@ -193,7 +198,7 @@
     return n * u;
   }
   function baseName(p) { var n = String(p.name || ""); return n.indexOf(" — ") > 0 ? n.split(" — ")[0].trim() : ""; }
-  function planLabel(p) { var parts = String(p.name || "").split(" — "); return p.duration || (parts[1] ? parts.slice(1).join(" — ") : p.name); }
+  function planLabel(p) { var parts = String(p.name || "").split(" — "); return p.duration ? durationText(p.duration) : (parts[1] ? parts.slice(1).join(" — ") : p.name); }
   function plansOf(p, all) {
     var bn = baseName(p), list;
     if (p.category) {
@@ -275,7 +280,7 @@
             (p.rating ? '<span class="stars">' + starStr(p.rating) + '<small>' + esc(p.rating) + (p.reviews_count ? ' (' + esc(p.reviews_count) + ')' : '') + (p.demo ? ' · تجريبي' : '') + '</small></span>' : '') + '</div>' + salesHTML(p,'buy-sales') +
           (p.short ? '<p class="buy-short">' + esc(p.short) + '</p>' : '') +
           planHTML +
-          '<div class="pbox"><div class="pbox-l"><small>السعر' + (p.duration ? ' · ' + esc(p.duration) : '') + '</small>' +
+          '<div class="pbox"><div class="pbox-l"><small>السعر' + (p.duration ? ' · <bdi>' + esc(durationText(p.duration)) + '</bdi>' : '') + '</small>' +
             '<div class="pbox-p"><b>' + fmt(price) + '</b><span>' + esc(cur) + '</span>' + (save ? '<s>' + fmt(old) + ' ' + esc(cur) + '</s>' : '') + '</div></div>' +
             (save ? '<span class="save">خصم ' + save + '٪</span>' : '') + '</div>' +
           '<a class="btn btn-p cta" id="mainCta" href="' + buyUrl + '" target="_blank" rel="noopener">' + ICONS.discord + '<span>اشترِ الآن عبر ديسكورد</span></a>' +
