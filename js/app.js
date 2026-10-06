@@ -30,6 +30,7 @@
     if (location.protocol === "file:" && window.DEMAN_LOCAL_SEED) {
       if (u === "/api/config") return Promise.resolve(window.DEMAN_LOCAL_SEED.config);
       if (u === "/api/products") return Promise.resolve(window.DEMAN_LOCAL_SEED.products);
+      if (u === "/api/reviews") return Promise.resolve(window.DEMAN_LOCAL_SEED.reviews || []);
     }
     return fetch(u, { cache: "no-store" }).then(function (r) { if (!r.ok) throw new Error(u); return r.json(); });
   }
@@ -57,6 +58,16 @@
     var isNew = /جديد|new/i.test(p.badge);
     return '<span class="badge' + (isNew ? " new" : "") + '">' + esc(p.badge) + "</span>";
   }
+  function salesHTML(p, cls) {
+    var n=Math.max(0,Math.floor(Number(p && p.purchases_count)||0)); if(!n) return '';
+    return '<span class="sales-pill '+(cls||'')+'">'+ICONS.bag+'<b class="js-count" data-count="'+n+'">0</b><span>عملية شراء</span></span>';
+  }
+  function animateCounts(root) {
+    var els=$$('.js-count:not([data-done])',root||document); if(!els.length)return;
+    var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function go(el){if(el.dataset.done)return;el.dataset.done='1';var end=Math.max(0,Math.floor(Number(el.dataset.count)||0));if(reduce){el.textContent=end.toLocaleString('ar-SA');return;}var st=performance.now(),dur=Math.min(1600,650+end*3);function tick(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(end*e).toLocaleString('ar-SA');if(t<1)requestAnimationFrame(tick);}requestAnimationFrame(tick);}
+    if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){go(e.target);io.unobserve(e.target);}});},{threshold:.4});els.forEach(function(el){io.observe(el);});}else els.forEach(go);
+  }
   function nameHTML(n) {
     var parts = String(n || "").split(" — ");
     return esc(parts[0]) + (parts[1] ? '<span class="sub">' + esc(parts.slice(1).join(" — ")) + "</span>" : "");
@@ -68,15 +79,16 @@
       '<a class="th" href="' + url + '" aria-label="' + esc(p.name) + '"><img loading="lazy" src="' + esc(img) + '" alt="' + esc(p.name) + '">' +
       (p.duration ? '<span class="dur">' + ICONS.clock + esc(p.duration) + '</span>' : '') + '</a>' +
       '<div class="bd"><h3><a href="' + url + '">' + nameHTML(p.name) + '</a></h3>' +
-      '<p class="ds">' + esc(shortOf(p)) + "</p>" + priceHTML(p) +
+      '<p class="ds">' + esc(shortOf(p)) + "</p>" + salesHTML(p,'card-sales') + priceHTML(p) +
       '<div class="card-act"><a class="btn btn-o" href="' + esc(buyOf(p)) + '" target="_blank" rel="noopener">' + ICONS.discord + 'اشترِ عبر ديسكورد</a>' +
       '<a class="btn btn-o btn-i" href="' + url + '" aria-label="التفاصيل" title="التفاصيل">' + ICONS.eye + '</a></div></div></article>';
   }
 
   function observe() {
-    if (!("IntersectionObserver" in window)) { $$(".rv").forEach(function (e) { e.classList.add("in"); }); return; }
+    if (!("IntersectionObserver" in window)) { $$(".rv").forEach(function (e) { e.classList.add("in"); }); animateCounts(document); return; }
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: 0.12 });
     $$(".rv:not(.in)").forEach(function (e) { io.observe(e); });
+    animateCounts(document);
   }
   function applyConfig() {
     CUR = CFG.currency || CUR;
@@ -93,7 +105,7 @@
     if ($(".js-hero-sub")) $(".js-hero-sub").textContent = CFG.hero_subtitle || "";
   }
 
-  function home(products) {
+  function home(products, reviews) {
     var fq = $("#faqList");
     if (fq) fq.innerHTML = (CFG.faq || []).map(function (f, i) { return "<details class=\"rv\"" + (i === 0 ? " open" : "") + "><summary>" + esc(f.q) + "</summary><p>" + esc(f.a) + "</p></details>"; }).join("");
     var cats = CFG.categories || [{ id: "all", name: "الكل" }];
@@ -111,10 +123,15 @@
       $$(".chip", f).forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); render(b.getAttribute("data-c"));
     });
     render("all");
-    $("#revs").innerHTML = (CFG.reviews || []).map(function (r) {
-      return '<div class="rev rv"><div class="stars">' + starStr(r.stars) + '</div><p>“' + esc(r.text) + '”</p><div class="who"><span class="av">' + esc((r.name || "؟").charAt(0)) +
-        '</span><div><b>' + esc(r.name) + '</b><span>' + esc(r.product || "") + "</span></div></div></div>";
-    }).join("");
+    function productName(id) { var p=products.filter(function(x){return x.id===id;})[0]; return p ? p.name : ''; }
+    function renderReviews(list) {
+      var box=$('#revs');
+      box.innerHTML=(list||[]).map(function(r,i){return '<div class="rev rv" style="transition-delay:'+(i%6)*55+'ms"><div class="stars">'+starStr(r.stars)+'</div><p>“'+esc(r.text)+'”</p><div class="who"><span class="av">'+esc((r.name||'؟').charAt(0))+'</span><div><b>'+esc(r.name)+'</b><span>'+esc(productName(r.product_id))+'</span></div></div><div class="rev-badges">'+(r.verified?'<span class="rev-badge verified">✓ شراء موثّق</span>':'')+(r.demo?'<span class="rev-badge demo">تجريبي</span>':'')+'</div></div>';}).join('') || '<p style="color:var(--mut);text-align:center;grid-column:1/-1">ما فيه آراء منشورة حتى الآن — كن أول من يشارك تجربته.</p>';
+      observe();
+    }
+    renderReviews(reviews || []);
+    var rp=$('#reviewProduct'); if(rp) rp.innerHTML='<option value="">— اختر المنتج —</option>'+products.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>';}).join('');
+    var rf=$('#reviewForm'); if(rf) rf.addEventListener('submit',function(e){e.preventDefault();var b=$('#reviewSubmit'),msg=$('#reviewMsg');msg.className='';msg.textContent='';b.disabled=true;var data={name:rf.name.value,product_id:rf.product_id.value,stars:rf.stars.value,text:rf.text.value,website:rf.website.value};fetch('/api/reviews',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data),cache:'no-store'}).then(function(r){return r.json().catch(function(){return {};}).then(function(d){if(!r.ok)throw new Error(d.error||'تعذر إرسال الرأي');return d;});}).then(function(d){rf.reset();msg.className='ok';msg.textContent=d.message||'شكراً لك — تم إرسال رأيك للمراجعة.';}).catch(function(x){msg.className='bad';msg.textContent=x.message;}).then(function(){b.disabled=false;});});
   }
 
   /* ===================== product page (v3) ===================== */
@@ -147,7 +164,7 @@
   function listHTML(a) { return '<ul class="checks">' + a.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>"; }
   function setMeta(n, v) { var m = document.querySelector('meta[name="' + n + '"]'); if (!m) { m = document.createElement("meta"); m.name = n; document.head.appendChild(m); } m.content = v; }
 
-  function product(products) {
+  function product(products, reviews) {
     var m = $("#pmain");
     function find(id) { return products.filter(function (x) { return x.id === id; })[0]; }
     var p = find(new URLSearchParams(location.search).get("id"));
@@ -210,7 +227,7 @@
           '<div class="buy-tags">' + (cat ? '<span class="tag">' + ICONS.grid + esc(cat) + '</span>' : '') + (p.badge ? '<span class="tag hot">' + esc(p.badge) + '</span>' : '') + (p.demo ? '<span class="tag demo-t">منتج تجريبي (مثال)</span>' : '') + '</div>' +
           '<h1>' + esc(p.name) + '</h1>' +
           '<div class="buy-meta"><span class="stock"><i></i>متوفر · تسليم فوري</span>' +
-            (p.rating ? '<span class="stars">' + starStr(p.rating) + '<small>' + esc(p.rating) + (p.reviews_count ? ' (' + esc(p.reviews_count) + ')' : '') + (p.demo ? ' · تجريبي' : '') + '</small></span>' : '') + '</div>' +
+            (p.rating ? '<span class="stars">' + starStr(p.rating) + '<small>' + esc(p.rating) + (p.reviews_count ? ' (' + esc(p.reviews_count) + ')' : '') + (p.demo ? ' · تجريبي' : '') + '</small></span>' : '') + '</div>' + salesHTML(p,'buy-sales') +
           (p.short ? '<p class="buy-short">' + esc(p.short) + '</p>' : '') +
           planHTML +
           '<div class="pbox"><div class="pbox-l"><small>السعر' + (p.duration ? ' · ' + esc(p.duration) : '') + '</small>' +
@@ -350,10 +367,10 @@
 
   icons(document);
   ui();
-  Promise.all([load("/api/config"), load("/api/products")]).then(function (r) {
+  Promise.all([load("/api/config"), load("/api/products"), load("/api/reviews")]).then(function (r) {
     CFG = r[0] || {}; applyConfig();
     var page = document.body.getAttribute("data-page");
-    if (page === "home") home(r[1] || []); else product(r[1] || []);
+    if (page === "home") home(r[1] || [], r[2] || []); else product(r[1] || [], r[2] || []);
     observe();
   }).catch(function (e) {
     console.error(e);

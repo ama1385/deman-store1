@@ -91,8 +91,21 @@
 
 <!-- ============ REVIEWS ============ -->
 <section id="reviews" class="sec"><div class="wrap">
-  <div class="sec-h rv"><span class="tag"><i class="dot"></i>التقييمات</span><h2>آراء <em>العملاء</em></h2><p>تقييمات تجريبية (PLACEHOLDER) — بتُستبدل بتقييمات حقيقية.</p></div>
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>التقييمات</span><h2>آراء <em>العملاء</em></h2><p>آراء منشورة بعد المراجعة. البطاقات الموسومة «تجريبي» مجرد أمثلة ويمكن حذفها من لوحة التحكم.</p></div>
   <div class="revs" id="revs"></div>
+  <div class="review-submit rv">
+    <div class="review-submit-head"><div><span class="tag"><i class="dot"></i>شارك تجربتك</span><h3>اكتب رأيك</h3><p>رأيك يصل للوحة التحكم أولاً، وبعد اعتماده يظهر للزوار.</p></div></div>
+    <form id="reviewForm" class="review-form">
+      <div class="review-grid">
+        <label><span>الاسم</span><input name="name" maxlength="80" required placeholder="اسمك أو اسم مختصر"></label>
+        <label><span>المنتج</span><select name="product_id" id="reviewProduct"><option value="">— اختر المنتج —</option></select></label>
+        <label><span>التقييم</span><select name="stars"><option value="5">★★★★★ — ممتاز</option><option value="4">★★★★☆ — جيد جداً</option><option value="3">★★★☆☆ — جيد</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select></label>
+      </div>
+      <label class="review-text"><span>رأيك</span><textarea name="text" rows="4" maxlength="1200" required placeholder="اكتب تجربتك باختصار..."></textarea></label>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="review-actions"><button class="btn btn-p" type="submit" id="reviewSubmit">إرسال الرأي</button><p id="reviewMsg" role="status"></p></div>
+    </form>
+  </div>
 </div></section>
 
 <!-- ============ FAQ ============ -->

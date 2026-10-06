@@ -1,9 +1,10 @@
 import { get, put } from '@vercel/blob';
-import { SEED_PRODUCTS, SEED_CONFIG } from './_seed.js';
+import { SEED_PRODUCTS, SEED_CONFIG, SEED_REVIEWS } from './_seed.js';
 
 const ACCESS = 'private';
 const PRODUCT_PATH = 'data/products.json';
 const CONFIG_PATH = 'data/config.json';
+const REVIEWS_PATH = 'data/reviews.json';
 
 function clone(v) { return JSON.parse(JSON.stringify(v)); }
 
@@ -39,3 +40,5 @@ export const loadProducts = () => readPrivateJson(PRODUCT_PATH, SEED_PRODUCTS);
 export const saveProducts = (v) => writePrivateJson(PRODUCT_PATH, v);
 export const loadConfig = () => readPrivateJson(CONFIG_PATH, SEED_CONFIG);
 export const saveConfig = (v) => writePrivateJson(CONFIG_PATH, v);
+export const loadReviews = () => readPrivateJson(REVIEWS_PATH, SEED_REVIEWS);
+export const saveReviews = (v) => writePrivateJson(REVIEWS_PATH, v);

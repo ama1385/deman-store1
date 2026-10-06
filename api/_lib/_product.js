@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 
 const ALLOWED = [
   'name','category','featured','badge','duration','short','description','price','old_price','rating','reviews_count',
-  'features','included','delivery','faq','images','visible','sort','buy_link','currency','demo'
+  'features','included','delivery','faq','images','visible','sort','buy_link','currency','demo','purchases_count'
 ];
 
 function str(v, max=5000) { return String(v == null ? '' : v).slice(0,max); }
@@ -24,6 +24,7 @@ export function cleanProduct(input, previous = {}) {
   o.old_price=(o.old_price === '' || o.old_price == null) ? null : num(o.old_price,0);
   o.rating=num(o.rating,5);
   o.reviews_count=num(o.reviews_count,0);
+  o.purchases_count=Math.max(0, Math.floor(num(o.purchases_count,0)));
   o.features=arr(o.features,40).map(x=>str(x,300).trim()).filter(Boolean);
   o.included=arr(o.included,40).map(x=>str(x,300).trim()).filter(Boolean);
   o.delivery=str(o.delivery,1500);

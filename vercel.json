@@ -6,6 +6,10 @@
       "destination": "/api/product-item?id=:id"
     },
     {
+      "source": "/api/reviews/:id",
+      "destination": "/api/review-item?id=:id"
+    },
+    {
       "source": "/api/img/:key",
       "destination": "/api/img?key=:key"
     },
