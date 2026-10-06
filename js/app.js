@@ -19,7 +19,8 @@
     zoom: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5M11 8v6M8 11h6"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>',
     lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
-    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>'
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>',
+    card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>'
   };
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
   function $(s, r) { return (r || document).querySelector(s); }
@@ -36,8 +37,20 @@
   }
 
   var CFG = {}, CUR = "ر.س";
-  function curOf(p) { return (p && p.currency) || CUR; }
+  // Catalog prices are USD. Keep USD_TO_SAR identical to api/_lib/payments.js.
+  var USD_TO_SAR = 3.75;
+  function sarHalalas(usd) {
+    var n = Number(usd);
+    if (!isFinite(n) || n <= 0) return 0;
+    var usdCents = Math.round(n * 100);
+    var numerator = Math.round(USD_TO_SAR * 100);
+    return Math.floor((usdCents * numerator + 50) / 100);
+  }
+  function sarText(usd) {
+    return (sarHalalas(usd) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
   function buyOf(p) { return (p && p.buy_link) || CFG.discord_invite || "#"; }
+  function checkoutOf(p) { return "checkout.html?product=" + encodeURIComponent(p.id); }
   function safeImg(u) { u = String(u || ""); if (location.protocol === "file:" && /^\/images\//.test(u)) u = u.slice(1); return /^(https?:\/\/|\/api\/img\/|\/?images\/)/.test(u) ? u : ""; }
   function shortOf(p) { if (p.short) return p.short; var d = String(p.description || "").split("\n")[0]; return d.length > 140 ? d.slice(0, 140) + "…" : d; }
   function durationText(v) {
@@ -47,8 +60,8 @@
   }
   function priceHTML(p) {
     var o = Number(p.old_price), n = Number(p.price), off = o > n ? Math.round((1 - n / o) * 100) : 0;
-    return '<div class="price"><b><span class="price-num" dir="ltr">' + esc(p.price) + '</span><small dir="rtl">' + esc(curOf(p)) + '</small></b>' +
-      (off ? '<s><span dir="ltr">' + esc(p.old_price) + '</span> ' + esc(curOf(p)) + '</s><span class="off">-' + off + '٪</span>' : "") + "</div>";
+    return '<div class="price"><b><span class="price-num" dir="ltr">' + esc(sarText(n)) + '</span><small dir="rtl">' + esc(CUR) + '</small></b>' +
+      (off ? '<s><span dir="ltr">' + esc(sarText(o)) + '</span> ' + esc(CUR) + '</s><span class="off">-' + off + '٪</span>' : "") + "</div>";
   }
   function payHTML() {
     var pm = CFG.payment_methods || [];
@@ -86,8 +99,9 @@
       (p.duration ? '<span class="dur">' + ICONS.clock + '<bdi>' + esc(durationText(p.duration)) + '</bdi></span>' : '') + '</a>' +
       '<div class="bd"><h3><a href="' + url + '">' + nameHTML(p.name) + '</a></h3>' +
       '<p class="ds">' + esc(shortOf(p)) + "</p>" + '<div class="card-proof-slot">' + salesHTML(p,'card-sales') + '</div>' + priceHTML(p) +
-      '<div class="card-act"><a class="btn btn-o" href="' + esc(buyOf(p)) + '" target="_blank" rel="noopener">' + ICONS.discord + 'اشترِ عبر ديسكورد</a>' +
-      '<a class="btn btn-o btn-i" href="' + url + '" aria-label="التفاصيل" title="التفاصيل">' + ICONS.eye + '</a></div></div></article>';
+      '<div class="card-act"><a class="btn btn-p" href="' + esc(checkoutOf(p)) + '">' + ICONS.card + 'اشترِ الآن</a>' +
+      '<a class="btn btn-o btn-i" href="' + url + '" aria-label="التفاصيل" title="التفاصيل">' + ICONS.eye + '</a></div>' +
+      '<a class="card-discord" href="' + esc(buyOf(p)) + '" target="_blank" rel="noopener">' + ICONS.discord + 'أو عبر ديسكورد</a></div></article>';
   }
 
   function revealNow() {
@@ -269,7 +283,7 @@
     window.addEventListener("popstate", function () { var q = find(new URLSearchParams(location.search).get("id")); if (q) render(q, false); });
 
     function render(p, animate) {
-      var cur = curOf(p), sn = CFG.store_name || "Deman.Store";
+      var sn = CFG.store_name || "Deman.Store";
       document.title = p.name + " | " + sn;
       setMeta("description", shortOf(p));
       var imgs = (p.images || []).map(safeImg).filter(Boolean); if (!imgs.length) imgs = ["images/logo-512.png"];
@@ -279,6 +293,8 @@
       var base = plans.filter(function (x) { var d = daysOf(x); return d > 0 && isFinite(d); })[0];
       var baseRate = base ? Number(base.price) / daysOf(base) : 0;
       var buyUrl = esc(buyOf(p));
+      var payUrl = esc(checkoutOf(p));
+      var cur = CUR;
       var related = products.filter(function (x) { return x.id !== p.id; })
         .sort(function (a, b) { return (b.category === p.category) - (a.category === p.category); }).slice(0, 4);
       var faq = (p.faq || []).length ? p.faq : (CFG.faq || []);
@@ -293,15 +309,15 @@
             (x.badge && x.badge !== planLabel(x) ? '<span class="plan-tag">' + esc(x.badge) + '</span>' : '') +
             '<span class="plan-dot" aria-hidden="true"></span>' +
             '<span class="plan-n">' + esc(planLabel(x)) + '</span>' +
-            '<span class="plan-p"><b>' + fmt(x.price) + '</b> <small>' + esc(curOf(x)) + '</small>' + (Number(x.old_price) > Number(x.price) ? ' <s>' + fmt(x.old_price) + '</s>' : '') + '</span>' +
-            (off >= 5 ? '<span class="plan-s">وفّر ' + off + '٪</span>' : (rate && d > 1 ? '<span class="plan-r">≈ ' + fmt(rate) + ' / يوم</span>' : '')) +
+            '<span class="plan-p"><b>' + sarText(x.price) + '</b> <small>' + esc(CUR) + '</small>' + (Number(x.old_price) > Number(x.price) ? ' <s>' + sarText(x.old_price) + '</s>' : '') + '</span>' +
+            (off >= 5 ? '<span class="plan-s">وفّر ' + off + '٪</span>' : (rate && d > 1 ? '<span class="plan-r">≈ ' + sarText(rate) + ' / يوم</span>' : '')) +
             '</a>';
         }).join("") + '</div></div>';
 
       var tabs = [
         { id: "desc", t: "الوصف", h: '<p class="ml">' + esc(p.description || shortOf(p)) + '</p>' + (feats.length ? '<h3>أبرز المميزات</h3>' + listHTML(feats) : '') },
         inc.length ? { id: "inc", t: "وش يشمل", h: listHTML(inc) } : null,
-        { id: "dlv", t: "التسليم", h: '<ol class="flow"><li><i>1</i><div><b>اضغط «اشترِ الآن»</b><span>يفتح لك سيرفر الديسكورد.</span></div></li><li><i>2</i><div><b>افتح تذكرة شراء</b><span>اختر المنتج والمدة وأكمل الدفع.</span></div></li><li><i>3</i><div><b>استلم منتجك</b><span>' + esc(p.delivery || "يوصلك المنتج داخل تذكرتك في سيرفر الديسكورد بعد تأكيد الدفع.") + '</span></div></li></ol>' },
+        { id: "dlv", t: "التسليم", h: '<ol class="flow"><li><i>1</i><div><b>اضغط «اشترِ الآن»</b><span>ادفع بالبطاقة أو Apple Pay أو STC Pay. تقدر كمان تشتري عبر ديسكورد.</span></div></li><li><i>2</i><div><b>بعد الدفع افتح الديسكورد</b><span>ادخل السيرفر وافتح تذكرة شراء.</span></div></li><li><i>3</i><div><b>استلم منتجك</b><span>' + esc(p.delivery || "يوصلك المنتج داخل تذكرتك في سيرفر الديسكورد بعد تأكيد الدفع.") + '</span></div></li></ol>' },
         faq.length ? { id: "faq", t: "الأسئلة", h: '<div class="faq">' + faq.map(function (f, i) { return "<details" + (i === 0 ? " open" : "") + "><summary>" + esc(f.q) + "</summary><p>" + esc(f.a) + "</p></details>"; }).join("") + '</div>' } : null
       ].filter(Boolean);
 
@@ -327,11 +343,13 @@
           (p.short ? '<p class="buy-short">' + esc(p.short) + '</p>' : '') +
           planHTML +
           '<div class="pbox"><div class="pbox-l"><small>السعر' + (p.duration ? ' · <bdi>' + esc(durationText(p.duration)) + '</bdi>' : '') + '</small>' +
-            '<div class="pbox-p"><b>' + fmt(price) + '</b><span>' + esc(cur) + '</span>' + (save ? '<s>' + fmt(old) + ' ' + esc(cur) + '</s>' : '') + '</div></div>' +
+            '<div class="pbox-p"><b>' + sarText(price) + '</b><span>' + esc(cur) + '</span>' + (save ? '<s>' + sarText(old) + ' ' + esc(cur) + '</s>' : '') + '</div></div>' +
             (save ? '<span class="save">خصم ' + save + '٪</span>' : '') + '</div>' +
-          '<a class="btn btn-p cta" id="mainCta" href="' + buyUrl + '" target="_blank" rel="noopener">' + ICONS.discord + '<span>اشترِ الآن عبر ديسكورد</span></a>' +
-          '<div class="buy-2"><a class="btn btn-o" href="' + esc(CFG.discord_invite || "#") + '" target="_blank" rel="noopener">' + ICONS.chat + 'استفسار قبل الشراء</a>' +
+          '<a class="btn btn-p cta" id="mainCta" href="' + payUrl + '">' + ICONS.card + '<span>اشترِ الآن</span></a>' +
+          '<p class="buy-paynote">الدفع بالبطاقة أو Apple Pay أو STC Pay، والتسليم عبر ديسكورد.</p>' +
+          '<div class="buy-2"><a class="btn btn-o" href="' + buyUrl + '" target="_blank" rel="noopener">' + ICONS.discord + 'أو عبر ديسكورد</a>' +
             '<button class="btn btn-o btn-i" id="shareBtn" aria-label="مشاركة الرابط" title="مشاركة">' + ICONS.share + '</button></div>' +
+          '<a class="buy-ask js-discord" href="' + esc(CFG.discord_invite || "#") + '" target="_blank" rel="noopener">' + ICONS.chat + 'استفسار قبل الشراء</a>' +
           '<ul class="assure"><li>' + ICONS.bolt + '<div><b>تسليم فوري</b><span>داخل تذكرتك بعد الدفع</span></div></li>' +
             '<li>' + ICONS.chat + '<div><b>دعم مباشر</b><span>فريقنا معك في الديسكورد</span></div></li>' +
             '<li>' + ICONS.shield + '<div><b>شراء آمن</b><span>طلبك موثّق بتذكرة خاصة</span></div></li>' +
@@ -347,8 +365,8 @@
 
         (related.length ? '<section class="rel"><div class="rel-h"><h2>منتجات قد تعجبك</h2><a href="index.html#products">عرض الكل ' + ICONS.arrowl + '</a></div><div class="grid' + (related.length < 4 ? " few" : "") + '">' + related.map(card).join("") + '</div></section>' : '') +
 
-        '<div class="mbar" id="mbar"><img src="' + esc(imgs[0]) + '" alt="" width="44" height="44"><div class="mbar-t"><span>' + esc(planLabel(p)) + '</span><b>' + fmt(price) + ' <small>' + esc(cur) + '</small>' + (save ? ' <s>' + fmt(old) + '</s>' : '') + '</b></div>' +
-          '<a class="btn btn-p" href="' + buyUrl + '" target="_blank" rel="noopener">' + ICONS.discord + 'اشترِ الآن</a></div>' +
+        '<div class="mbar" id="mbar"><img src="' + esc(imgs[0]) + '" alt="" width="44" height="44"><div class="mbar-t"><span>' + esc(planLabel(p)) + '</span><b>' + sarText(price) + ' <small>' + esc(cur) + '</small>' + (save ? ' <s>' + sarText(old) + '</s>' : '') + '</b></div>' +
+          '<a class="btn btn-p" href="' + payUrl + '">' + ICONS.card + 'اشترِ الآن</a></div>' +
         '<dialog class="lb" id="lb" aria-label="عرض الصورة"><button class="lb-x" aria-label="إغلاق">✕</button><img id="lbimg" src="" alt="' + esc(p.name) + '">' +
           (multi ? '<button class="pg-nav prev" aria-label="السابقة">' + ICONS.chev + '</button><button class="pg-nav next" aria-label="التالية">' + ICONS.chev + '</button>' : '') + '</dialog>';
 
@@ -356,7 +374,7 @@
       var ld = $("#ldjson"); if (!ld) { ld = document.createElement("script"); ld.type = "application/ld+json"; ld.id = "ldjson"; document.head.appendChild(ld); }
       ld.textContent = JSON.stringify({ "@context": "https://schema.org", "@type": "Product", name: p.name, description: shortOf(p), image: imgs.map(function (s) { return new URL(s, location.href).href; }),
         category: cat || undefined, brand: { "@type": "Brand", name: sn },
-        offers: { "@type": "Offer", price: price, priceCurrency: /﷼|ر\.?س|sar/i.test(cur) ? "SAR" : "USD", availability: "https://schema.org/InStock", url: location.href } });
+        offers: { "@type": "Offer", price: (sarHalalas(price) / 100).toFixed(2), priceCurrency: "SAR", availability: "https://schema.org/InStock", url: location.href } });
 
       // gallery
       var gi = 0, gm = $("#gmain"), gb = $("#gbg"), lb = $("#lb"), lbi = $("#lbimg");
@@ -466,7 +484,8 @@
   Promise.all([load("/api/config"), load("/api/products"), load("/api/reviews")]).then(function (r) {
     CFG = r[0] || {}; applyConfig();
     var page = document.body.getAttribute("data-page");
-    if (page === "home") home(r[1] || [], r[2] || []); else product(r[1] || [], r[2] || []);
+    if (page === "home") home(r[1] || [], r[2] || []);
+    else if (page === "product") product(r[1] || [], r[2] || []);
     initPurchasePopups(r[1] || []);
     observe();
   }).catch(function (e) {
