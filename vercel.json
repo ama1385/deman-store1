@@ -6,6 +6,18 @@
       "destination": "/api/health?route=chat"
     },
     {
+      "source": "/api/payments/config",
+      "destination": "/api/health?route=payments-config"
+    },
+    {
+      "source": "/api/payments/verify/:id",
+      "destination": "/api/health?route=payments-verify&id=:id"
+    },
+    {
+      "source": "/api/payments/verify",
+      "destination": "/api/health?route=payments-verify"
+    },
+    {
       "source": "/api/products/:id",
       "destination": "/api/product-item?id=:id"
     },
