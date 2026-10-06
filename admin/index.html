@@ -60,22 +60,15 @@
       <div id="pList" class="plist"><p class="mut">جاري التحميل…</p></div>
     </section>
 
-
-
-    <!-- stats / orders -->
+    <!-- stats -->
     <section id="vStats" hidden>
       <div class="sec-h">
-        <div><h2>الإحصائيات والطلبات</h2><p class="mut">تحكم سريع في عدد الطلبات الفعلي لكل منتج وشاهد ملخص المتجر.</p></div>
+        <div><h2>الإحصائيات والطلبات</h2><p class="mut">تحكم سريع بالأرقام التي تظهر في المتجر</p></div>
       </div>
-      <div class="stats-grid">
-        <div class="card stat"><span>إجمالي الطلبات</span><b id="stTotalSales">0</b><small>من الأرقام المسجلة للمنتجات</small></div>
-        <div class="card stat"><span>المنتجات</span><b id="stProducts">0</b><small>إجمالي المنتجات</small></div>
-        <div class="card stat"><span>الآراء المنشورة</span><b id="stApproved">0</b><small>آراء حقيقية معتمدة</small></div>
-        <div class="card stat"><span>بانتظار المراجعة</span><b id="stPending">0</b><small>آراء أرسلها العملاء</small></div>
-      </div>
-      <div class="card pad sales-panel">
-        <div class="row-h"><div><h3>عدد الطلبات لكل منتج</h3><p class="mut sm-t">أدخل العدد الفعلي فقط. الرقم يظهر في المتجر بعدّاد متحرك.</p></div></div>
-        <div id="salesManager" class="sales-manager"></div>
+      <div id="statsCards" class="stats-grid"></div>
+      <div class="card pad stats-panel">
+        <div class="row-h"><div><h3>عدد الطلبات لكل منتج</h3><p class="mut sm-t">اكتب العدد الفعلي فقط. يظهر للعميل بعدّاد متحرك.</p></div></div>
+        <div id="salesList" class="sales-admin-list"></div>
       </div>
     </section>
 
@@ -90,7 +83,7 @@
         <button class="btn btn-o sm" data-rfilter="pending">بانتظار المراجعة</button>
         <button class="btn btn-o sm" data-rfilter="approved">منشور</button>
         <button class="btn btn-o sm" data-rfilter="hidden">مخفي</button>
-        <button class="btn btn-d sm demo-clean" id="clearDemoReviews" type="button">حذف الآراء التجريبية</button>
+        <button class="btn btn-d sm" id="deleteDemoReviews" type="button" hidden>حذف التجريبية</button>
       </div>
       <div id="rList" class="rlist"><p class="mut">جاري التحميل…</p></div>
     </section>
@@ -152,7 +145,7 @@
         <label class="f"><span>العملة</span><input name="currency" maxlength="20" placeholder="الافتراضية"></label>
         <label class="f"><span>الترتيب</span><input name="sort" type="number" step="1" inputmode="numeric" dir="ltr"></label>
       </div>
-      <label class="f"><span>عدد الطلبات الفعلي المسجل</span><input name="purchases_count" type="number" step="1" min="0" inputmode="numeric" dir="ltr" placeholder="0"><small class="mut">يظهر للعميل بعدّاد متحرك إذا كان أكبر من صفر. استخدم عدد الطلبات الحقيقي فقط.</small></label>
+      <label class="f"><span>عدد عمليات الشراء (رقم فعلي تدخله أنت)</span><input name="purchases_count" type="number" step="1" min="0" inputmode="numeric" dir="ltr" placeholder="0"><small class="mut">يظهر للعميل بعدّاد متحرك إذا كان أكبر من صفر.</small></label>
       <label class="f"><span>المدة</span><input name="duration" maxlength="60" placeholder="مثلاً: شهر واحد"></label>
       <div class="picks" id="durPicks">
         <button type="button" data-d="يوم واحد">يوم</button><button type="button" data-d="أسبوع واحد">أسبوع</button>

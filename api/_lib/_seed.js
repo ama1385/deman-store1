@@ -268,5 +268,5 @@ export const SEED_CONFIG = {
 };
 
 
-// لا ننشئ آراء وهمية افتراضياً. الآراء تظهر بعد إرسال عميل واعتمادها من لوحة التحكم.
+// No fake testimonials are published by default. Real customer reviews are stored after submission and admin approval.
 export const SEED_REVIEWS = [];

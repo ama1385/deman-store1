@@ -14,13 +14,6 @@ export default { async fetch(request) {
       list=list.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
       return json(list);
     }
-    if (request.method === 'DELETE') {
-      requireAjax(request);
-      if (!isAdmin(request)) return json({error:'غير مصرح'},401);
-      if (url.searchParams.get('demo') !== '1') return json({error:'طلب حذف غير صالح'},400);
-      const list=await loadReviews(); const kept=list.filter(r=>!r.demo); const removed=list.length-kept.length;
-      await saveReviews(kept); return json({ok:true,removed});
-    }
     if (request.method === 'POST') {
       const admin=request.headers.get('x-requested-with') === 'deman-admin' && isAdmin(request);
       if (admin) requireAjax(request);
@@ -35,6 +28,13 @@ export default { async fetch(request) {
       if (admin && !body.status) review.status='approved';
       list.push(review); await saveReviews(list);
       return json(admin ? {ok:true,review} : {ok:true,pending:true,message:'شكراً لك — تم إرسال رأيك للمراجعة قبل النشر.'}, admin?201:202);
+    }
+    if (request.method === 'DELETE') {
+      requireAjax(request);
+      if (!isAdmin(request)) return json({error:'غير مصرح'},401);
+      if (url.searchParams.get('demo') !== '1') return json({error:'حدد demo=1 للحذف الجماعي'},400);
+      const list=await loadReviews(); const keep=list.filter(r=>!r.demo); const removed=list.length-keep.length;
+      await saveReviews(keep); return json({ok:true,removed});
     }
     return methodNotAllowed('GET, POST, DELETE');
   } catch(e) { return errorResponse(e); }

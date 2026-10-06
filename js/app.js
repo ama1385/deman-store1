@@ -60,12 +60,12 @@
   }
   function salesHTML(p, cls) {
     var n=Math.max(0,Math.floor(Number(p && p.purchases_count)||0)); if(!n) return '';
-    return '<span class="sales-pill '+(cls||'')+'" title="عدد الطلبات الفعلي المسجل">'+ICONS.bag+'<b class="js-count" data-count="'+n+'">0</b><span>طلب</span></span>';
+    return '<span class="sales-pill '+(cls||'')+'">'+ICONS.bag+'<b class="js-count" data-count="'+n+'">0</b><span>عملية شراء</span></span>';
   }
   function animateCounts(root) {
     var els=$$('.js-count:not([data-done])',root||document); if(!els.length)return;
     var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-    function go(el){if(el.dataset.done)return;el.dataset.done='1';var end=Math.max(0,Math.floor(Number(el.dataset.count)||0));if(reduce){el.textContent=end.toLocaleString('ar-SA');return;}var st=performance.now(),dur=Math.min(1600,650+end*3);function tick(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(end*e).toLocaleString('ar-SA');if(t<1)requestAnimationFrame(tick);else{var p=el.closest('.sales-pill');if(p){p.classList.add('counted');setTimeout(function(){p.classList.remove('counted');},700);}}}requestAnimationFrame(tick);}
+    function go(el){if(el.dataset.done)return;el.dataset.done='1';var end=Math.max(0,Math.floor(Number(el.dataset.count)||0));if(reduce){el.textContent=end.toLocaleString('ar-SA');el.classList.add('count-done');return;}var st=performance.now(),dur=Math.min(1600,650+end*3);function tick(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,3);el.textContent=Math.round(end*e).toLocaleString('ar-SA');if(t<1)requestAnimationFrame(tick);else el.classList.add('count-done');}requestAnimationFrame(tick);}
     if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){go(e.target);io.unobserve(e.target);}});},{threshold:.4});els.forEach(function(el){io.observe(el);});}else els.forEach(go);
   }
   function nameHTML(n) {
@@ -123,11 +123,16 @@
       $$(".chip", f).forEach(function (x) { x.classList.remove("on"); }); b.classList.add("on"); render(b.getAttribute("data-c"));
     });
     render("all");
+    var proof=$('#storeProof'); if(proof){
+      var total=products.reduce(function(t,p){return t+Math.max(0,Math.floor(Number(p.purchases_count)||0));},0);
+      var realReviews=(reviews||[]).filter(function(r){return r && r.status!=='hidden' && !r.demo;}).length;
+      if(total>0 || realReviews>0){proof.hidden=false;proof.innerHTML=(total>0?'<div class="proof-item"><span class="proof-ico">'+ICONS.bag+'</span><div><b class="js-count proof-count" data-count="'+total+'">0</b><small>عملية شراء مسجلة</small></div></div>':'')+(realReviews>0?'<div class="proof-item"><span class="proof-ico">'+ICONS.star+'</span><div><b class="js-count proof-count" data-count="'+realReviews+'">0</b><small>تقييم منشور</small></div></div>':'');animateCounts(proof);}
+    }
     function productName(id) { var p=products.filter(function(x){return x.id===id;})[0]; return p ? p.name : ''; }
     function renderReviews(list) {
       var box=$('#revs');
-      list=(list||[]).filter(function(r){return r && !r.demo;});
-      box.innerHTML=list.map(function(r,i){return '<div class="rev rv" style="transition-delay:'+(i%6)*55+'ms"><div class="stars">'+starStr(r.stars)+'</div><p>“'+esc(r.text)+'”</p><div class="who"><span class="av">'+esc((r.name||'؟').charAt(0))+'</span><div><b>'+esc(r.name)+'</b><span>'+esc(productName(r.product_id))+'</span></div></div><div class="rev-badges">'+(r.verified?'<span class="rev-badge verified">✓ شراء موثّق</span>':'')+'</div></div>';}).join('') || '<p style="color:var(--mut);text-align:center;grid-column:1/-1">ما فيه آراء منشورة حتى الآن — كن أول من يشارك تجربته.</p>';
+      list=(list||[]).filter(function(r){return r && r.status!=='hidden' && !r.demo;});
+      box.innerHTML=list.map(function(r,i){return '<div class="rev rv" style="transition-delay:'+(i%6)*55+'ms"><div class="stars">'+starStr(r.stars)+'</div><p>“'+esc(r.text)+'”</p><div class="who"><span class="av">'+esc((r.name||'؟').charAt(0))+'</span><div><b>'+esc(r.name)+'</b><span>'+esc(productName(r.product_id))+'</span></div></div><div class="rev-badges">'+(r.verified?'<span class="rev-badge verified">✓ شراء موثّق</span>':'')+(r.demo?'<span class="rev-badge demo">تجريبي</span>':'')+'</div></div>';}).join('') || '<p style="color:var(--mut);text-align:center;grid-column:1/-1">ما فيه آراء منشورة حتى الآن — كن أول من يشارك تجربته.</p>';
       observe();
     }
     renderReviews(reviews || []);

@@ -528,5 +528,9 @@ em{font-style:normal;color:var(--p)}
 @media(max-width:760px){.review-grid{grid-template-columns:1fr}.review-submit{padding:20px}.sales-pill{font-size:11px}}
 
 
-/* live-looking motion for real order counters + customer reviews */
-@keyframes salesPop{0%{transform:scale(1)}38%{transform:scale(1.055);box-shadow:0 0 0 5px rgba(210,155,253,.06),0 0 28px rgba(210,155,253,.22)}100%{transform:scale(1)}}.sales-pill.counted{animation:salesPop .7s var(--ease)}.sales-pill .js-count{min-width:1.4ch;text-align:center}.rev{transition:transform .25s var(--ease),border-color .25s,box-shadow .25s,opacity .65s var(--ease)}.rev:hover{transform:translateY(-4px);border-color:rgba(210,155,253,.3);box-shadow:0 18px 48px -28px rgba(210,155,253,.42)}.rev .stars{animation:starGlow 3.2s ease-in-out infinite}@keyframes starGlow{0%,100%{filter:drop-shadow(0 0 0 rgba(251,191,36,0))}50%{filter:drop-shadow(0 0 7px rgba(251,191,36,.28))}}.review-submit{margin:0 0 24px}.revs{margin-top:8px}
+/* ===== V3 storefront social proof ===== */
+.proof-strip{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin:18px auto 22px}.proof-item{display:flex;align-items:center;gap:10px;min-width:180px;padding:11px 15px;border:1px solid rgba(210,155,253,.22);border-radius:16px;background:linear-gradient(135deg,rgba(168,85,247,.10),rgba(255,255,255,.02));box-shadow:0 12px 36px -24px rgba(168,85,247,.8)}.proof-ico{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:rgba(168,85,247,.12);color:var(--p)}.proof-ico svg{width:18px;height:18px}.proof-item b{display:block;font-size:21px;line-height:1;font-variant-numeric:tabular-nums}.proof-item small{display:block;color:var(--mut);margin-top:4px;font-size:11px}.proof-count.count-done{animation:countPop .45s var(--ease)}
+.sales-pill .count-done{animation:countPop .45s var(--ease)}
+@keyframes countPop{0%{transform:scale(.8);filter:drop-shadow(0 0 0 rgba(210,155,253,0))}60%{transform:scale(1.16);filter:drop-shadow(0 0 10px rgba(210,155,253,.45))}100%{transform:scale(1);filter:none}}
+.reviews-after-form{margin-top:24px}.review-submit{box-shadow:0 24px 70px -45px rgba(168,85,247,.8)}
+@media(max-width:600px){.proof-item{min-width:calc(50% - 6px);flex:1}.proof-item b{font-size:18px}}
