@@ -90,10 +90,30 @@
       '<a class="btn btn-o btn-i" href="' + url + '" aria-label="التفاصيل" title="التفاصيل">' + ICONS.eye + '</a></div></div></article>';
   }
 
+  function revealNow() {
+    var vh = window.innerHeight || document.documentElement.clientHeight || 800;
+    $$(".rv:not(.in)").forEach(function (e) {
+      var r = e.getBoundingClientRect();
+      if (r.width < 1 && r.height < 1) return;
+      if (r.top < vh + 48) e.classList.add("in");
+    });
+  }
   function observe() {
-    if (!("IntersectionObserver" in window)) { $$(".rv").forEach(function (e) { e.classList.add("in"); }); animateCounts(document); return; }
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { threshold: 0.12 });
-    $$(".rv:not(.in)").forEach(function (e) { io.observe(e); });
+    if (!observe.bound) {
+      observe.bound = true;
+      window.addEventListener("scroll", revealNow, { passive: true });
+      window.addEventListener("resize", revealNow);
+      if ("IntersectionObserver" in window) {
+        observe.io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add("in"); observe.io.unobserve(e.target); }
+          });
+        }, { threshold: 0, rootMargin: "0px 0px 64px 0px" });
+      }
+    }
+    revealNow();
+    if (!observe.io) $$(".rv").forEach(function (e) { e.classList.add("in"); });
+    else $$(".rv:not(.in)").forEach(function (e) { observe.io.observe(e); });
     animateCounts(document);
   }
   function applyConfig() {

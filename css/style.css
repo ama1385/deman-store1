@@ -13,7 +13,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html{overflow-x:hidden;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{font-family:'Tajawal','Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--tx);
-  line-height:1.7;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
@@ -25,6 +25,7 @@ em{font-style:normal;color:var(--p)}
 
 /* ---------- background ---------- */
 #stars{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none}
+#cursor-trail{position:fixed;inset:0;width:100%;height:100%;z-index:70;pointer-events:none}
 .bgfx{position:fixed;inset:0;overflow:hidden;z-index:-1;pointer-events:none}
 .glow{position:absolute;z-index:-1;border-radius:50%;filter:blur(110px);pointer-events:none;opacity:.5}
 .g1{width:560px;height:560px;background:radial-gradient(circle,#7c3aed 0,transparent 70%);top:-220px;left:-160px;opacity:.35}
@@ -97,7 +98,7 @@ em{font-style:normal;color:var(--p)}
 .hero-btns{display:flex;gap:12px;margin-top:22px;flex-wrap:wrap}
 
 .hero-art{display:flex;flex-direction:column;align-items:center}
-.orb{position:relative;width:min(340px,80vw);aspect-ratio:1;display:grid;place-items:center}
+.orb{position:relative;width:min(340px,80vw);aspect-ratio:1;display:grid;place-items:center;margin-bottom:72px}
 .orb::before{content:"";position:absolute;inset:16%;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,.45),transparent 70%);filter:blur(30px)}
 .orb img{position:relative;width:62%;height:auto;filter:drop-shadow(0 0 30px rgba(210,155,253,.55)) drop-shadow(0 20px 40px rgba(0,0,0,.6));animation:float 6s ease-in-out infinite}
 .ring{position:absolute;border-radius:50%;border:1px solid rgba(210,155,253,.22)}
@@ -282,7 +283,7 @@ em{font-style:normal;color:var(--p)}
   .hero-btns{display:grid;grid-template-columns:1fr;width:100%}
   .hero-btns .btn{width:100%}
   .hero-art{display:contents}
-  .orb{order:-1;width:210px;margin:0 auto -18px}
+  .orb{order:-1;width:210px;margin:8px auto 36px}
   .hero-in{gap:14px}
   .exp-t{order:2;margin:22px auto 0;text-align:center;width:100%}
   .exp{order:3;margin:0 auto}
