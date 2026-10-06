@@ -268,13 +268,5 @@ export const SEED_CONFIG = {
 };
 
 
-// Demo cards are intentionally labelled as demo in the storefront/admin.
-// Replace/delete them once you have genuine customer reviews.
-export const SEED_REVIEWS = [
-  {id:'demo-rv-1',name:'محمد أ.',stars:5,text:'تجربة نموذجية لعرض شكل التقييم داخل المتجر.',product_id:'perf-day',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T10:00:00.000Z'},
-  {id:'demo-rv-2',name:'عبدالله س.',stars:5,text:'نموذج تقييم تجريبي — استبدله برأي عميل حقيقي من لوحة التحكم.',product_id:'perf-week',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T09:00:00.000Z'},
-  {id:'demo-rv-3',name:'خالد م.',stars:5,text:'بطاقة تجريبية توضح شكل النجوم والنص واسم المنتج.',product_id:'perf-month',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T08:00:00.000Z'},
-  {id:'demo-rv-4',name:'فهد ع.',stars:4,text:'مثال مرئي فقط لتجربة تصميم قسم آراء العملاء.',product_id:'perf-year',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T07:00:00.000Z'},
-  {id:'demo-rv-5',name:'تركي ر.',stars:5,text:'رأي تجريبي قابل للحذف أو التعديل من لوحة التحكم.',product_id:'perf-month',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T06:00:00.000Z'},
-  {id:'demo-rv-6',name:'سارة ن.',stars:5,text:'نموذج تجريبي — آراء العملاء الحقيقية يمكن إرسالها من المتجر ثم اعتمادها.',product_id:'perf-week',status:'approved',verified:false,demo:true,source:'seed',created_at:'2026-10-01T05:00:00.000Z'}
-];
+// لا ننشئ آراء وهمية افتراضياً. الآراء تظهر بعد إرسال عميل واعتمادها من لوحة التحكم.
+export const SEED_REVIEWS = [];

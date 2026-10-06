@@ -68,16 +68,18 @@
     var b = e.target.closest("button"); if (!b) return;
     $$("#tabs button").forEach(function (x) { x.classList.toggle("on", x === b); });
     var v = b.getAttribute("data-v");
-    $("#vProducts").hidden = v !== "products"; $("#vReviews").hidden = v !== "reviews"; $("#vSettings").hidden = v !== "settings";
-    history.replaceState(null, "", v === "settings" ? "#settings" : (v === "reviews" ? "#reviews" : "#"));
+    $("#vProducts").hidden = v !== "products"; $("#vStats").hidden = v !== "stats"; $("#vReviews").hidden = v !== "reviews"; $("#vSettings").hidden = v !== "settings";
+    history.replaceState(null, "", v === "settings" ? "#settings" : (v === "reviews" ? "#reviews" : (v === "stats" ? "#stats" : "#")));
+    if (v === "stats") renderStats();
   });
 
   function loadAll() {
     return Promise.all([api("/api/products?all=1"), api("/api/config"), api("/api/reviews?all=1")]).then(function (r) {
       S.products = r[0]; S.config = r[1]; S.reviews = r[2];
-      renderProducts(); renderSettings(); renderReviews();
+      renderProducts(); renderSettings(); renderReviews(); renderStats();
       if (location.hash === "#settings") $('#tabs [data-v="settings"]').click();
       if (location.hash === "#reviews") $('#tabs [data-v="reviews"]').click();
+      if (location.hash === "#stats") $('#tabs [data-v="stats"]').click();
     }).catch(function (x) { toast(x.message, "bad"); });
   }
 
@@ -93,7 +95,7 @@
         '<img class="th" src="' + esc(img) + '" alt="" loading="lazy">' +
         '<div><h4>' + esc(p.name) + '</h4><div class="meta"><b>' + esc(p.price) + ' ' + esc(p.currency || S.config.currency || "") + '</b>' +
         (p.duration ? '<span>⏱ ' + esc(p.duration) + '</span>' : '') + '<span>' + esc(catName(p.category)) + '</span><span>ترتيب: ' + esc(p.sort) + '</span>' +
-        '<span>طلبات: ' + esc(p.purchases_count || 0) + '</span><span class="pill ' + (p.visible !== false ? 'on">ظاهر' : 'off">مخفي') + '</span></div></div>' +
+        '<span>طلبات فعلية: ' + esc(p.purchases_count || 0) + '</span><span class="pill ' + (p.visible !== false ? 'on">ظاهر' : 'off">مخفي') + '</span></div></div>' +
         '<label class="tg vis" title="ظاهر/مخفي"><input type="checkbox" data-act="vis"' + (p.visible !== false ? " checked" : "") + '><i></i></label>' +
         '<div class="pact"><button class="btn btn-o sm" data-act="edit">تعديل</button><button class="btn btn-d sm" data-act="del">حذف</button></div></div>';
     }).join("");
@@ -107,7 +109,7 @@
     if (act === "del") {
       if (!confirm("حذف «" + p.name + "»؟ ما تقدر ترجعه.")) return;
       api("/api/products/" + encodeURIComponent(id), { method: "DELETE" }).then(function () {
-        S.products = S.products.filter(function (x) { return x.id !== id; }); renderProducts(); toast("انحذف المنتج");
+        S.products = S.products.filter(function (x) { return x.id !== id; }); renderProducts(); renderStats(); toast("انحذف المنتج");
       }).catch(function (x) { toast(x.message, "bad"); });
     }
   });
@@ -115,7 +117,7 @@
     var cb = e.target.closest('[data-act="vis"]'); if (!cb) return;
     var id = cb.closest(".prow").getAttribute("data-id");
     api("/api/products/" + encodeURIComponent(id), { method: "PUT", body: { visible: cb.checked } }).then(function (d) {
-      S.products = S.products.map(function (x) { return x.id === id ? d.product : x; }); renderProducts(); toast(d.product.visible ? "صار ظاهر" : "صار مخفي");
+      S.products = S.products.map(function (x) { return x.id === id ? d.product : x; }); renderProducts(); renderStats(); toast(d.product.visible ? "صار ظاهر" : "صار مخفي");
     }).catch(function (x) { cb.checked = !cb.checked; toast(x.message, "bad"); });
   });
 
@@ -201,10 +203,47 @@
     var b = $("#edSave"); busy(b, true);
     var req = S.edit ? api("/api/products/" + encodeURIComponent(S.edit.id), { method: "PUT", body: body }) : api("/api/products", { method: "POST", body: body });
     req.then(function () { closeEditor(); toast("انحفظ المنتج"); return api("/api/products?all=1"); })
-      .then(function (l) { S.products = l; renderProducts(); })
+      .then(function (l) { S.products = l; renderProducts(); renderStats(); })
       .catch(function (x) { toast(x.message, "bad"); })
       .then(function () { busy(b, false); });
   });
+
+
+  /* ---------- stats / real order counts ---------- */
+  function purchaseCount(p) { return Math.max(0, Math.floor(Number(p && p.purchases_count) || 0)); }
+  function renderStats() {
+    if (!$('#salesManager')) return;
+    var total=S.products.reduce(function(n,p){return n+purchaseCount(p);},0);
+    var approved=S.reviews.filter(function(r){return r.status==='approved' && !r.demo;}).length;
+    var pending=S.reviews.filter(function(r){return r.status==='pending' && !r.demo;}).length;
+    $('#stTotalSales').textContent=total.toLocaleString('ar-SA');
+    $('#stProducts').textContent=S.products.length.toLocaleString('ar-SA');
+    $('#stApproved').textContent=approved.toLocaleString('ar-SA');
+    $('#stPending').textContent=pending.toLocaleString('ar-SA');
+    var box=$('#salesManager');
+    if(!S.products.length){box.innerHTML='<p class="mut">ما فيه منتجات.</p>';return;}
+    box.innerHTML=S.products.map(function(p){
+      var img=(p.images&&p.images[0])?imgSrc(p.images[0]):'/images/logo-512.png';
+      return '<div class="sales-row" data-id="'+esc(p.id)+'">'+
+        '<img src="'+esc(img)+'" alt="" loading="lazy"><div class="sales-name"><b>'+esc(p.name)+'</b><span>الحالي: <strong>'+purchaseCount(p).toLocaleString('ar-SA')+'</strong> طلب</span></div>'+
+        '<div class="sales-ctrl"><button type="button" class="btn btn-o sm" data-sales-delta="-10">−10</button><button type="button" class="btn btn-o sm" data-sales-delta="-1">−1</button>'+
+        '<input class="sales-num" type="number" min="0" step="1" inputmode="numeric" value="'+purchaseCount(p)+'" aria-label="عدد الطلبات الفعلي">'+
+        '<button type="button" class="btn btn-o sm" data-sales-delta="1">+1</button><button type="button" class="btn btn-o sm" data-sales-delta="10">+10</button><button type="button" class="btn btn-p sm" data-sales-save>حفظ</button></div></div>';
+    }).join('');
+  }
+  function saveSalesRow(row) {
+    var id=row.getAttribute('data-id'), inp=$('.sales-num',row), n=Math.max(0,Math.floor(Number(inp.value)||0)), btn=$('[data-sales-save]',row);
+    inp.value=n; busy(btn,true);
+    api('/api/products/'+encodeURIComponent(id),{method:'PUT',body:{purchases_count:n}}).then(function(d){
+      S.products=S.products.map(function(x){return x.id===id?d.product:x;}); renderStats(); renderProducts(); toast('تم حفظ عدد الطلبات');
+    }).catch(function(x){toast(x.message,'bad');}).then(function(){busy(btn,false);});
+  }
+  $('#salesManager').addEventListener('click',function(e){
+    var row=e.target.closest('.sales-row'); if(!row)return;
+    var d=e.target.closest('[data-sales-delta]'); if(d){var inp=$('.sales-num',row),n=Math.max(0,Math.floor(Number(inp.value)||0)+Number(d.getAttribute('data-sales-delta')||0));inp.value=n;return;}
+    if(e.target.closest('[data-sales-save]')) saveSalesRow(row);
+  });
+  $('#salesManager').addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.classList.contains('sales-num')){e.preventDefault();saveSalesRow(e.target.closest('.sales-row'));}});
 
 
   /* ---------- reviews ---------- */
@@ -222,13 +261,14 @@
     }).join('');
   }
   $('.review-tools').addEventListener('click',function(e){var b=e.target.closest('[data-rfilter]');if(!b)return;S.reviewFilter=b.getAttribute('data-rfilter');$$('[data-rfilter]',this).forEach(function(x){x.classList.toggle('on',x===b);});renderReviews();});
-  $('#rList').addEventListener('click',function(e){var b=e.target.closest('[data-ract]');if(!b)return;var row=b.closest('.rrow'),id=row.getAttribute('data-id'),r=S.reviews.filter(function(x){return x.id===id;})[0];if(!r)return;var a=b.getAttribute('data-ract');if(a==='edit')return openReviewEditor(r);if(a==='approve'){api('/api/reviews/'+encodeURIComponent(id),{method:'PUT',body:{status:'approved'}}).then(function(d){S.reviews=S.reviews.map(function(x){return x.id===id?d.review:x;});renderReviews();toast('تم اعتماد الرأي');}).catch(function(x){toast(x.message,'bad');});}if(a==='del'){if(!confirm('حذف رأي «'+r.name+'»؟'))return;api('/api/reviews/'+encodeURIComponent(id),{method:'DELETE'}).then(function(){S.reviews=S.reviews.filter(function(x){return x.id!==id;});renderReviews();toast('انحذف الرأي');}).catch(function(x){toast(x.message,'bad');});}});
+  $('#clearDemoReviews').addEventListener('click',function(){var n=S.reviews.filter(function(r){return r.demo;}).length;if(!n){toast('ما فيه آراء تجريبية');return;}if(!confirm('حذف '+n+' رأي تجريبي؟'))return;var b=this;busy(b,true);api('/api/reviews?demo=1',{method:'DELETE'}).then(function(){return api('/api/reviews?all=1');}).then(function(l){S.reviews=l;renderReviews();renderStats();toast('تم حذف الآراء التجريبية');}).catch(function(x){toast(x.message,'bad');}).then(function(){busy(b,false);});});
+  $('#rList').addEventListener('click',function(e){var b=e.target.closest('[data-ract]');if(!b)return;var row=b.closest('.rrow'),id=row.getAttribute('data-id'),r=S.reviews.filter(function(x){return x.id===id;})[0];if(!r)return;var a=b.getAttribute('data-ract');if(a==='edit')return openReviewEditor(r);if(a==='approve'){api('/api/reviews/'+encodeURIComponent(id),{method:'PUT',body:{status:'approved'}}).then(function(d){S.reviews=S.reviews.map(function(x){return x.id===id?d.review:x;});renderReviews();renderStats();toast('تم اعتماد الرأي');}).catch(function(x){toast(x.message,'bad');});}if(a==='del'){if(!confirm('حذف رأي «'+r.name+'»؟'))return;api('/api/reviews/'+encodeURIComponent(id),{method:'DELETE'}).then(function(){S.reviews=S.reviews.filter(function(x){return x.id!==id;});renderReviews();renderStats();toast('انحذف الرأي');}).catch(function(x){toast(x.message,'bad');});}});
   var RF=$('#rvForm');
   function fillReviewProducts(sel){$('#rvProduct').innerHTML='<option value="">— بدون منتج —</option>'+S.products.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>';}).join('');$('#rvProduct').value=sel||'';}
   function openReviewEditor(r){S.reviewEdit=r||null;r=r||{};RF.reset();$('#rvTitle').textContent=S.reviewEdit?'تعديل رأي':'إضافة رأي';RF.name.value=r.name||'';RF.stars.value=r.stars||5;RF.text.value=r.text||'';RF.status.value=r.status||'approved';RF.verified.checked=!!r.verified;RF.demo.checked=!!r.demo;fillReviewProducts(r.product_id||'');$('#rvEd').hidden=false;document.body.style.overflow='hidden';setTimeout(function(){RF.name.focus();},50);}
   function closeReviewEditor(){$('#rvEd').hidden=true;document.body.style.overflow='';}
   $('#addReviewBtn').addEventListener('click',function(){openReviewEditor(null);}); $('#rvClose').addEventListener('click',closeReviewEditor); $('#rvCancel').addEventListener('click',closeReviewEditor); $('#rvEd').addEventListener('click',function(e){if(e.target.id==='rvEd')closeReviewEditor();});
-  RF.addEventListener('submit',function(e){e.preventDefault();var body={name:RF.name.value,stars:RF.stars.value,text:RF.text.value,product_id:RF.product_id.value,status:RF.status.value,verified:RF.verified.checked,demo:RF.demo.checked};var b=$('#rvSave');busy(b,true);var req=S.reviewEdit?api('/api/reviews/'+encodeURIComponent(S.reviewEdit.id),{method:'PUT',body:body}):api('/api/reviews',{method:'POST',body:body});req.then(function(){closeReviewEditor();toast('انحفظ الرأي');return api('/api/reviews?all=1');}).then(function(l){S.reviews=l;renderReviews();}).catch(function(x){toast(x.message,'bad');}).then(function(){busy(b,false);});});
+  RF.addEventListener('submit',function(e){e.preventDefault();var body={name:RF.name.value,stars:RF.stars.value,text:RF.text.value,product_id:RF.product_id.value,status:RF.status.value,verified:RF.verified.checked,demo:RF.demo.checked};var b=$('#rvSave');busy(b,true);var req=S.reviewEdit?api('/api/reviews/'+encodeURIComponent(S.reviewEdit.id),{method:'PUT',body:body}):api('/api/reviews',{method:'POST',body:body});req.then(function(){closeReviewEditor();toast('انحفظ الرأي');return api('/api/reviews?all=1');}).then(function(l){S.reviews=l;renderReviews();renderStats();}).catch(function(x){toast(x.message,'bad');}).then(function(){busy(b,false);});});
 
   /* ---------- settings ---------- */
   var SF = $("#setForm");

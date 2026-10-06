@@ -10,9 +10,16 @@ export default { async fetch(request) {
       const all=url.searchParams.get('all') === '1';
       if (all && !isAdmin(request)) return json({error:'غير مصرح'},401);
       let list=await loadReviews();
-      if (!all) list=list.filter(r=>r.status==='approved');
+      if (!all) list=list.filter(r=>r.status==='approved' && !r.demo);
       list=list.slice().sort((a,b)=>String(b.created_at||'').localeCompare(String(a.created_at||'')));
       return json(list);
+    }
+    if (request.method === 'DELETE') {
+      requireAjax(request);
+      if (!isAdmin(request)) return json({error:'غير مصرح'},401);
+      if (url.searchParams.get('demo') !== '1') return json({error:'طلب حذف غير صالح'},400);
+      const list=await loadReviews(); const kept=list.filter(r=>!r.demo); const removed=list.length-kept.length;
+      await saveReviews(kept); return json({ok:true,removed});
     }
     if (request.method === 'POST') {
       const admin=request.headers.get('x-requested-with') === 'deman-admin' && isAdmin(request);
@@ -29,6 +36,6 @@ export default { async fetch(request) {
       list.push(review); await saveReviews(list);
       return json(admin ? {ok:true,review} : {ok:true,pending:true,message:'شكراً لك — تم إرسال رأيك للمراجعة قبل النشر.'}, admin?201:202);
     }
-    return methodNotAllowed('GET, POST');
+    return methodNotAllowed('GET, POST, DELETE');
   } catch(e) { return errorResponse(e); }
 }};
