@@ -31,7 +31,6 @@
     <a href="index.html#top">الرئيسية</a><a href="index.html#products">المنتجات</a><a href="index.html#how">طريقة الشراء</a><a href="index.html#reviews">التقييمات</a><a href="index.html#faq">الأسئلة</a>
   </nav>
   <div class="nav-act">
-    <a class="btn btn-discord js-discord" href="index.html#" target="_blank" rel="noopener"><svg data-ic="discord"></svg><span>ديسكورد</span></a>
     <button class="burger" id="burger" aria-label="القائمة" aria-expanded="false"><span></span><span></span></button>
   </div>
 </div></header>
@@ -40,9 +39,8 @@
 <!-- ============ HERO ============ -->
 <section class="hero"><div class="wrap hero-in">
   <div class="hero-txt">
-    <span class="pill rv"><i class="dot"></i><span class="js-brand-ar">متجر ديمان</span> · متصل الآن</span>
     <p class="kicker rv js-hero-title">المتجر الرقمي</p>
-    <h1 class="rv"><span class="h-big">DEMAN</span><span class="h-sub">.STORE</span></h1>
+    <h1 class="rv"><span class="h-big">DEMAN</span><span class="h-sub">STORE</span></h1>
     <span class="line rv"></span>
     <p class="lead rv js-hero-sub"></p>
     <a class="cta-card rv js-discord" href="index.html#" target="_blank" rel="noopener">
@@ -61,7 +59,6 @@
       <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
       <img src="images/logo-512.png" alt="شعار Deman.Store" width="512" height="512">
     </div>
-    <p class="exp-t rv">تجربة ديمان</p>
     <div class="exp">
       <div class="exp-c rv"><span class="ic"><svg data-ic="bolt"></svg></span><div><b>تسليم فوري</b><small>٢٤/٧ عبر ديسكورد</small></div></div>
       <div class="exp-c rv"><span class="ic"><svg data-ic="check"></svg></span><div><b>تفعيل سهل</b><small>شرح خطوة بخطوة</small></div></div>
@@ -92,9 +89,9 @@
 
 <!-- ============ REVIEWS ============ -->
 <section id="reviews" class="sec"><div class="wrap">
-  <div class="sec-h rv"><span class="tag"><i class="dot"></i>التقييمات</span><h2>آراء <em>العملاء</em></h2><p>التقييمات تظهر بعد مراجعتها واعتمادها من الإدارة.</p></div>
+  <div class="sec-h rv"><span class="tag"><i class="dot"></i>التقييمات</span><h2>آراء <em>العملاء</em></h2></div>
   <div class="review-submit rv">
-    <div class="review-submit-head"><div><span class="tag"><i class="dot"></i>شارك تجربتك</span><h3>اكتب رأيك</h3><p>رأيك يصل للوحة التحكم أولاً، وبعد اعتماده يظهر للزوار.</p></div></div>
+    <div class="review-submit-head"><div><span class="tag"><i class="dot"></i>شارك تجربتك</span><h3 id="reviewFormHeading">اكتب رأيك</h3></div></div>
     <form id="reviewForm" class="review-form">
       <div class="review-grid">
         <label><span>الاسم</span><input name="name" maxlength="80" required placeholder="اسمك أو اسم مختصر"></label>
@@ -144,8 +141,14 @@
   <a href="index.html#top"><svg data-ic="home"></svg><span>الرئيسية</span></a>
   <a href="index.html#products"><svg data-ic="grid"></svg><span>المنتجات</span></a>
   <a href="index.html#reviews"><svg data-ic="star"></svg><span>التقييمات</span></a>
-  <a class="js-discord hot" href="index.html#" target="_blank" rel="noopener"><svg data-ic="discord"></svg><span>ديسكورد</span></a>
 </nav>
+<a class="discord-fab js-discord" id="discordFab" href="#" target="_blank" rel="noopener" aria-label="ديسكورد" title="ديسكورد">
+  <svg data-ic="discord"></svg><span class="discord-fab-tip" id="discordFabLabel">ديسكورد</span>
+</a>
+<div class="live-float" id="liveVisitors" hidden aria-live="polite">
+  <span class="live-pulse" aria-hidden="true"></span><span class="live-word">LIVE</span>
+  <b class="js-count live-count" data-count="0">0</b><span class="live-label" id="liveVisitorsLabel">زائر الآن</span>
+</div>
 <script src="js/local-seed.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -251,6 +251,11 @@ export const SEED_CONFIG = {
   ],
   "store_name": "Deman.Store",
   "announcement": "Deman.Store — وجهتك لأفضل المنتجات والخدمات الرقمية بجودة وموثوقية عالية.",
+  "purchase_popup_enabled": true,
+  "purchase_popup_title": "شراء جديد",
+  "purchase_popup_interval": 12,
+  "purchase_popup_duration": 6,
+  "recent_purchases": [],
   "payment_methods": [
     {
       "name": "تحويل بنكي",

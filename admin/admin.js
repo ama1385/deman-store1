@@ -261,7 +261,7 @@
 
   /* ---------- settings ---------- */
   var SF = $("#setForm");
-  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "hero_title", "hero_subtitle", "announcement"];
+  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "hero_title", "hero_subtitle", "announcement", "purchase_label", "total_sales_label", "published_reviews_label", "floating_discord_label", "live_visitors_count", "live_visitors_label", "purchase_popup_title", "purchase_popup_interval", "purchase_popup_duration"];
   function payRow(m) {
     m = m || {}; var ic = m.icon || "";
     return '<div class="rp pay"><div class="col"><input class="pm-name" placeholder="اسم الطريقة (مثلاً: STC Pay)" maxlength="60" value="' + esc(m.name) + '"></div>' +
@@ -282,16 +282,35 @@
       '<textarea class="fa" rows="2" placeholder="الجواب">' + esc(f.a) + '</textarea></div>' +
       '<button type="button" class="btn btn-d rm-row" aria-label="حذف">✕</button></div>';
   }
+  function pad2(n){return String(n).padStart(2,"0");}
+  function toLocalDateTime(v){
+    var d=v?new Date(v):new Date(); if(!isFinite(d.getTime()))d=new Date();
+    return d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+"T"+pad2(d.getHours())+":"+pad2(d.getMinutes());
+  }
+  function purchaseProductOptions(sel){
+    return '<option value="">— اختر المنتج —</option>'+S.products.map(function(p){return '<option value="'+esc(p.id)+'"'+(p.id===sel?' selected':'')+'>'+esc(p.name)+'</option>';}).join('');
+  }
+  function recentPurchaseRow(o){
+    o=o||{};
+    return '<div class="rp recent-purchase" data-id="'+esc(o.id||('rp-'+Date.now()+'-'+Math.random().toString(36).slice(2,6)))+'">'+
+      '<div class="col"><label class="mini-label">اسم العميل المختصر</label><input class="po-buyer" maxlength="70" placeholder="مثلاً: أحمد م." value="'+esc(o.buyer||'')+'"><label class="mini-label">المنتج</label><select class="po-product">'+purchaseProductOptions(o.product_id||'')+'</select></div>'+
+      '<div class="col"><label class="mini-label">وقت العملية</label><input class="po-time" type="datetime-local" value="'+esc(toLocalDateTime(o.created_at))+'"><label class="tg po-toggle"><input class="po-enabled" type="checkbox"'+(o.enabled===false?'':' checked')+'><i></i><span>إظهار هذه العملية</span></label></div>'+
+      '<button type="button" class="btn btn-d rm-row" aria-label="حذف">✕</button></div>';
+  }
   function renderSettings() {
     var c = S.config;
-    FIELDS.forEach(function (k) { SF[k].value = c[k] != null ? c[k] : (k === "store_name" ? (c.brand || "") : ""); });
+    var defaults={purchase_label:"طلب",total_sales_label:"طلب مكتمل",published_reviews_label:"تقييم من العملاء",floating_discord_label:"ديسكورد",live_visitors_count:0,live_visitors_label:"زائر يتصفح المتجر الآن",purchase_popup_title:"شراء جديد",purchase_popup_interval:12,purchase_popup_duration:6};
+    FIELDS.forEach(function (k) { SF[k].value = c[k] != null ? c[k] : (k === "store_name" ? (c.brand || "") : (defaults[k] != null ? defaults[k] : "")); });
     $("#payList").innerHTML = (c.payment_methods || []).map(payRow).join("");
     $("#catList").innerHTML = (c.categories || []).filter(function (x) { return x.id !== "all"; }).map(catRow).join("");
     $("#faqList").innerHTML = (c.faq || []).map(faqRow).join("");
+    var pp=$("#purchasePopupEnabled"); if(pp) pp.checked=c.purchase_popup_enabled!==false;
+    var pr=$("#recentPurchasesList"); if(pr) pr.innerHTML=(c.recent_purchases||[]).map(recentPurchaseRow).join("");
   }
   $("#addPay").addEventListener("click", function () { $("#payList").insertAdjacentHTML("beforeend", payRow()); $("#payList .rp:last-child .pm-name").focus(); });
   $("#addCat").addEventListener("click", function () { $("#catList").insertAdjacentHTML("beforeend", catRow()); $("#catList .rp:last-child .c-name").focus(); });
   $("#addFaq").addEventListener("click", function () { $("#faqList").insertAdjacentHTML("beforeend", faqRow()); $("#faqList .rp:last-child .fq").focus(); });
+  $("#addRecentPurchase").addEventListener("click", function () { $("#recentPurchasesList").insertAdjacentHTML("afterbegin", recentPurchaseRow({created_at:new Date().toISOString(),enabled:true})); var x=$("#recentPurchasesList .rp:first-child .po-buyer"); if(x)x.focus(); });
   SF.addEventListener("click", function (e) { var b = e.target.closest(".rm-row"); if (b) b.closest(".rp").remove(); });
   SF.addEventListener("input", function (e) {
     if (e.target.classList.contains("pm-icon")) { var v = e.target.value, p = e.target.parentNode.querySelector(".ic-prev"); p.innerHTML = isImgUrl(v) ? '<img src="' + esc(imgSrc(v)) + '" alt="">' : esc(v); }
@@ -307,6 +326,10 @@
     e.preventDefault();
     var body = {};
     FIELDS.forEach(function (k) { body[k] = SF[k].value; });
+    body.live_visitors_count=Math.max(0,Math.floor(Number(body.live_visitors_count)||0));
+    body.purchase_popup_enabled=$("#purchasePopupEnabled") ? $("#purchasePopupEnabled").checked : true;
+    body.purchase_popup_interval=Math.max(5,Math.min(120,Math.floor(Number(body.purchase_popup_interval)||12)));
+    body.purchase_popup_duration=Math.max(2,Math.min(15,Math.floor(Number(body.purchase_popup_duration)||6)));
     if (body.discord_invite && !/^https?:\/\//i.test(body.discord_invite.trim())) { toast("رابط الديسكورد لازم يبدأ بـ https://", "bad"); return; }
     body.payment_methods = $$("#payList .rp").map(function (r) { return { name: $(".pm-name", r).value.trim(), icon: $(".pm-icon", r).value.trim() }; }).filter(function (m) { return m.name; });
     body.categories = $$("#catList .rp").map(function (r) {
@@ -315,6 +338,11 @@
       return { id: id, name: name };
     }).filter(function (c) { return c.id && c.name; });
     body.faq = $$("#faqList .rp").map(function (r) { return { q: $(".fq", r).value.trim(), a: $(".fa", r).value.trim() }; }).filter(function (f) { return f.q || f.a; });
+    body.recent_purchases = $$("#recentPurchasesList .recent-purchase").map(function(r){
+      var buyer=$(".po-buyer",r).value.trim(), product_id=$(".po-product",r).value, raw=$(".po-time",r).value;
+      var d=raw?new Date(raw):new Date();
+      return {id:r.getAttribute("data-id")||("rp-"+Date.now()),buyer:buyer,product_id:product_id,created_at:isFinite(d.getTime())?d.toISOString():new Date().toISOString(),enabled:$(".po-enabled",r).checked};
+    }).filter(function(x){return x.buyer && x.product_id;});
     var b = $("#saveSet"); busy(b, true);
     api("/api/config", { method: "PUT", body: body }).then(function (d) { S.config = d.config; renderSettings(); renderProducts(); toast("انحفظت الإعدادات"); })
       .catch(function (x) { toast(x.message, "bad"); }).then(function () { busy(b, false); });

@@ -108,6 +108,31 @@
         </div>
 
         <div class="card pad">
+          <h3>نصوص وعناصر الواجهة</h3>
+          <p class="mut sm-t">تقدر تعدّل النصوص الظاهرة للعميل. عدد الزوار: اكتب الرقم الحقيقي فقط، و0 يخفي مؤشر LIVE.</p>
+          <div class="grid2">
+            <label class="f"><span>كلمة عدد الطلبات</span><input name="purchase_label" maxlength="40" placeholder="طلب"></label>
+            <label class="f"><span>نص إجمالي الطلبات</span><input name="total_sales_label" maxlength="80" placeholder="طلب مكتمل"></label>
+            <label class="f"><span>نص عدد التقييمات</span><input name="published_reviews_label" maxlength="80" placeholder="تقييم من العملاء"></label>
+            <label class="f"><span>اسم زر ديسكورد العائم</span><input name="floating_discord_label" maxlength="60" placeholder="ديسكورد"></label>
+            <label class="f"><span>عدد الزوار LIVE</span><input name="live_visitors_count" type="number" min="0" step="1" inputmode="numeric" dir="ltr" placeholder="0"><small class="mut">0 = إخفاء. استخدم عددًا فعليًا/موثوقًا.</small></label>
+            <label class="f"><span>نص LIVE</span><input name="live_visitors_label" maxlength="100" placeholder="زائر يتصفح المتجر الآن"></label>
+          </div>
+        </div>
+
+        <div class="card pad purchase-notify-settings">
+          <div class="row-h"><div><h3>إشعارات المشتريات الحديثة</h3><p class="mut sm-t">تظهر أسفل يسار المتجر مثل «شراء جديد». أضف عمليات شراء فعلية فقط؛ وبعد ربط الدفع نقدر نخليها تلقائية.</p></div><button type="button" class="btn btn-o sm" id="addRecentPurchase">+ إضافة عملية</button></div>
+          <div class="grid3 purchase-popup-controls">
+            <label class="tg setting-toggle"><input type="checkbox" id="purchasePopupEnabled"><i></i><span>عرض الإشعارات في المتجر</span></label>
+            <label class="f"><span>عنوان الإشعار</span><input name="purchase_popup_title" maxlength="50" placeholder="شراء جديد"></label>
+            <label class="f"><span>الفاصل بين الإشعارات (ثانية)</span><input name="purchase_popup_interval" type="number" min="5" max="120" step="1" inputmode="numeric" dir="ltr" placeholder="12"></label>
+            <label class="f"><span>مدة ظهور الإشعار (ثانية)</span><input name="purchase_popup_duration" type="number" min="2" max="15" step="1" inputmode="numeric" dir="ltr" placeholder="6"></label>
+          </div>
+          <div id="recentPurchasesList" class="rep recent-purchases-list"></div>
+          <p class="mut sm-t notify-note">استخدم اسمًا مختصرًا أو أول الاسم فقط لحماية خصوصية العميل. الإشعار يحسب الوقت من تاريخ العملية تلقائيًا.</p>
+        </div>
+
+        <div class="card pad">
           <div class="row-h"><h3>طرق الدفع</h3><button type="button" class="btn btn-o sm" id="addPay">+ إضافة</button></div>
           <p class="mut sm-t">الأيقونة: إيموجي/نص قصير، أو ارفع صورة صغيرة.</p>
           <div id="payList" class="rep"></div>
@@ -146,7 +171,10 @@
         <label class="f"><span>الترتيب</span><input name="sort" type="number" step="1" inputmode="numeric" dir="ltr"></label>
       </div>
       <label class="f"><span>عدد عمليات الشراء (رقم فعلي تدخله أنت)</span><input name="purchases_count" type="number" step="1" min="0" inputmode="numeric" dir="ltr" placeholder="0"><small class="mut">يظهر للعميل بعدّاد متحرك إذا كان أكبر من صفر.</small></label>
-      <label class="f"><span>المدة</span><input name="duration" maxlength="60" placeholder="مثلاً: شهر واحد"></label>
+      <div class="grid2">
+        <label class="f"><span>المدة</span><input name="duration" maxlength="60" placeholder="مثلاً: شهر واحد"></label>
+        <label class="f"><span>شارة المنتج</span><input name="badge" maxlength="40" placeholder="مثلاً: الأكثر طلباً / أفضل قيمة"></label>
+      </div>
       <div class="picks" id="durPicks">
         <button type="button" data-d="يوم واحد">يوم</button><button type="button" data-d="أسبوع واحد">أسبوع</button>
         <button type="button" data-d="شهر واحد">شهر</button><button type="button" data-d="سنة واحدة">سنة</button>
@@ -172,10 +200,7 @@
       <details class="adv">
         <summary>خيارات إضافية</summary>
         <label class="f"><span>وصف مختصر (يظهر بالبطاقة)</span><input name="short" maxlength="400"></label>
-        <div class="grid2">
-          <label class="f"><span>السعر قبل الخصم</span><input name="old_price" type="number" step="0.01" min="0" dir="ltr"></label>
-          <label class="f"><span>شارة (مثل: جديد)</span><input name="badge" maxlength="40"></label>
-        </div>
+        <label class="f"><span>السعر قبل الخصم</span><input name="old_price" type="number" step="0.01" min="0" dir="ltr"></label>
         <label class="f"><span>المميزات (سطر لكل ميزة)</span><textarea name="features" rows="4"></textarea></label>
         <label class="f"><span>وش يشمل (سطر لكل عنصر)</span><textarea name="included" rows="3"></textarea></label>
         <label class="f"><span>نص التسليم</span><input name="delivery" maxlength="500"></label>

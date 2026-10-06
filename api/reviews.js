@@ -27,7 +27,7 @@ export default { async fetch(request) {
       review.source=admin ? 'admin' : 'customer';
       if (admin && !body.status) review.status='approved';
       list.push(review); await saveReviews(list);
-      return json(admin ? {ok:true,review} : {ok:true,pending:true,message:'شكراً لك — تم إرسال رأيك للمراجعة قبل النشر.'}, admin?201:202);
+      return json(admin ? {ok:true,review} : {ok:true,pending:true,message:'شكراً لك — تم استلام رأيك.'}, admin?201:202);
     }
     if (request.method === 'DELETE') {
       requireAjax(request);
