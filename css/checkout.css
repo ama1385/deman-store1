@@ -1,34 +1,67 @@
-/* Checkout + payment result. Moyasar's form stays on a light sheet so its fields stay readable. */
-.checkout-page{padding:28px 0 80px}
-.checkout-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(280px,460px);gap:28px;align-items:start}
-.checkout-card,.result-card{border:1px solid rgba(210,155,253,.24);border-radius:22px;background:linear-gradient(180deg,rgba(168,85,247,.13),var(--card) 42%);box-shadow:0 30px 80px -42px rgba(168,85,247,.65)}
-.checkout-card{padding:22px}
-.checkout-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:12px}
-.summary-top{display:flex;gap:14px;align-items:center}
-.summary-top img{width:84px;height:84px;border-radius:16px;object-fit:cover;border:1px solid var(--line2);background:#0a0810}
-.summary-top h1{font-size:22px;line-height:1.35;font-weight:900}
-.summary-top p{color:var(--mut);font-size:13.5px;margin-top:2px}
-.summary-price{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:18px;padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--line)}
-.summary-price small{color:var(--mut);font-size:12.5px}
-.summary-price b{font-size:34px;font-weight:900;letter-spacing:-.4px;line-height:1}
-.summary-price span{font-size:15px;font-weight:700;color:var(--mut);margin-inline-start:6px}
-.checkout-note{margin-top:12px;color:var(--mut);font-size:13.5px;line-height:1.7}
-.pay-head{margin-bottom:12px}
-.pay-head h2{font-size:22px;font-weight:900}
-.pay-methods{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.pay-methods span{padding:5px 10px;border-radius:999px;border:1px solid var(--line2);background:rgba(255,255,255,.03);font-size:12.5px;font-weight:700;color:#e7e3ee}
-.pay-alert{margin:0 0 12px;padding:12px 14px;border-radius:14px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.38);color:#fde68a;font-size:14px;line-height:1.75}
+/* Premium checkout. Loaded after Moyasar's stylesheet so the form picks up the store theme. */
+body{line-height:1.7}
+.checkout-page{padding:18px 0 88px}
+.pay-stage{width:min(820px,100%);margin-inline:auto}
+.pay-back{display:inline-flex;align-items:center;gap:6px;margin-bottom:14px;color:var(--mut);font-size:13.5px;font-weight:700}
+.pay-back:hover{color:var(--p)}
+.pay-panel{position:relative;padding:26px 26px 22px;border-radius:28px;background:
+  radial-gradient(90% 70% at 100% 0%,rgba(168,85,247,.28),transparent 46%),
+  radial-gradient(70% 50% at 0% 100%,rgba(210,155,253,.12),transparent 42%),
+  linear-gradient(180deg,#14101c 0%,#0b090f 100%);
+  border:1px solid rgba(210,155,253,.42);
+  box-shadow:0 0 0 1px rgba(210,155,253,.08),0 40px 90px -42px rgba(168,85,247,.9),inset 0 1px 0 rgba(255,255,255,.06)}
+.pay-panel::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;background:linear-gradient(140deg,rgba(232,210,255,.85),rgba(168,85,247,.05) 38%,rgba(124,58,237,.55));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+.pay-hero{display:grid;grid-template-columns:88px minmax(0,1fr) auto;gap:16px;align-items:center;position:relative}
+.pay-hero img{width:88px;height:88px;border-radius:20px;object-fit:cover;background:#09070d;border:1px solid rgba(210,155,253,.4);box-shadow:0 0 28px -10px rgba(210,155,253,.85)}
+.pay-id h1{font-size:22px;line-height:1.35;font-weight:900;margin-top:8px}
+.pay-id p{color:var(--p);font-size:13.5px;font-weight:700}
+.pay-amount{text-align:center;min-width:118px;padding:10px 14px;border-radius:18px;background:rgba(0,0,0,.35);border:1px solid rgba(210,155,253,.28)}
+.pay-amount small{display:block;color:var(--mut);font-size:12px}
+.pay-amount b{display:block;font-size:32px;line-height:1.05;font-weight:900;letter-spacing:-.4px;background:linear-gradient(180deg,#fff,#e9d5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pay-amount span{color:#d8c4ef;font-size:13px;font-weight:800}
+.pay-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 16px;position:relative}
+.pay-method{padding:12px 12px 11px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+.pay-method b{display:block;font-size:14px;font-weight:800}
+.pay-method span{display:block;margin-top:2px;color:var(--mut);font-size:12px;line-height:1.45}
+.pay-method.apple{border-color:rgba(255,255,255,.2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
+.pay-method.card{border-color:rgba(210,155,253,.45);background:linear-gradient(180deg,rgba(210,155,253,.14),rgba(210,155,253,.04));box-shadow:0 0 24px -16px rgba(210,155,253,.9)}
+.pay-method.stc{border-color:rgba(124,58,237,.45)}
+.pay-alert{position:relative;margin:0 0 14px;padding:12px 14px;border-radius:14px;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.38);color:#fde68a;font-size:14.5px;line-height:1.75}
 .pay-alert[hidden]{display:none}
-.pay-sheet{background:#f6f3fb;color:#16121c;border-radius:18px;padding:16px 14px 8px;border:1px solid rgba(210,155,253,.45)}
-.pay-sheet #moyasar-form{min-height:160px}
-.pay-apple{margin-top:10px;color:var(--mut);font-size:12.5px;line-height:1.7}
-.pay-fallback{display:flex;justify-content:center;margin-top:14px}
+.pay-form{position:relative;margin-top:4px;padding:16px 14px 8px;border-radius:20px;background:rgba(5,4,8,.45);border:1px solid rgba(210,155,253,.18)}
+.pay-trust{position:relative;margin-top:16px;padding-top:14px;border-top:1px solid rgba(210,155,253,.16);color:#ddd4ea;font-size:13.5px;line-height:1.8}
+.pay-alt{position:relative;margin-top:10px;text-align:center;color:var(--mut);font-size:13.5px}
+.pay-alt a{display:inline-flex;align-items:center;gap:6px;color:#e7d4fb;font-weight:800}
+.pay-alt a:hover{color:#fff}
+.pay-alt svg{width:15px;height:15px}
 .checkout-status{padding:72px 0;text-align:center}
 .checkout-status h1{font-size:28px;margin-bottom:8px}
 .checkout-status p{color:var(--mut);margin-bottom:18px}
 
+/* Moyasar ships Tailwind with !important. Match that specificity so the form follows the store. */
+div#mysr,div#mysr > div{background:transparent}
+div#mysr,div#mysr input,div#mysr button,div#mysr label,div#mysr legend,div#mysr span{font-family:'Tajawal','Cairo',system-ui,sans-serif}
+div#mysr .text-black\/90{color:#f4f0f8 !important}
+div#mysr label,div#mysr legend{color:#ddd4ea !important;font-weight:700;font-size:13px}
+div#mysr .text-neutral-800\/90{color:#c9bfd8 !important;font-size:13px;font-weight:700}
+div#mysr .bg-neutral-300{background-color:rgba(210,155,253,.28) !important}
+div#mysr hr{border:0;height:1px;opacity:1}
+div#mysr input.text-black{background:#100c16 !important;color:#fff !important;-webkit-text-fill-color:#fff !important;border:1px solid rgba(210,155,253,.34) !important;box-shadow:none !important;min-height:46px}
+div#mysr .placeholder-gray-300::placeholder{color:#8d869c !important;-webkit-text-fill-color:#8d869c !important;opacity:1}
+div#mysr input.text-black:focus{border-color:#d29bfd !important;box-shadow:0 0 0 3px rgba(210,155,253,.22) !important;outline:none}
+div#mysr button[type="submit"]{height:52px;border:0;border-radius:14px;background:linear-gradient(135deg,#e4c8ff,#c084fc 45%,#a855f7) !important;color:#14061e !important;font-weight:900;font-size:16.5px;box-shadow:0 14px 34px -14px rgba(210,155,253,.95)}
+div#mysr button[type="submit"] span,div#mysr button[type="submit"] .currency-amount{color:#14061e !important;-webkit-text-fill-color:#14061e !important}
+div#mysr button[type="button"]{height:48px;border-radius:14px;box-shadow:0 10px 28px -16px rgba(124,58,237,.9)}
+div#mysr apple-pay-button{width:100%;height:48px;border-radius:14px;overflow:hidden;display:block}
+div#mysr p.bg-red-100:empty{display:none !important}
+div#mysr .text-red-600{color:#e7d4fb !important;font-size:12px}
+
 .result-wrap{padding:36px 0 80px}
-.result-card{max-width:560px;margin:0 auto;padding:34px 26px 28px;text-align:center}
+.result-card{position:relative;max-width:560px;margin:0 auto;padding:34px 26px 28px;text-align:center;border-radius:28px;background:
+  radial-gradient(90% 70% at 100% 0%,rgba(168,85,247,.28),transparent 46%),
+  linear-gradient(180deg,#14101c,#0b090f);
+  border:1px solid rgba(210,155,253,.4);
+  box-shadow:0 40px 90px -42px rgba(168,85,247,.9)}
 .result-ico{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center}
 .result-ico svg{width:34px;height:34px}
 .result-card.ok .result-ico{background:rgba(74,222,128,.14);color:#4ade80}
@@ -37,7 +70,7 @@
 .result-card.pending .result-ico{background:rgba(210,155,253,.14);color:var(--p)}
 .result-card h1{font-size:28px;font-weight:900;margin-bottom:8px}
 .result-card .lead{color:#d9d3e2;font-size:15.5px;line-height:1.8}
-.result-meta{margin:18px 0;padding:14px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid var(--line);text-align:right}
+.result-meta{margin:18px 0;padding:14px;border-radius:16px;background:rgba(0,0,0,.28);border:1px solid rgba(210,155,253,.2);text-align:right}
 .result-meta b{display:block;font-size:16px}
 .result-meta span{color:var(--mut);font-size:13px}
 .result-sum{margin-top:6px;font-size:22px;font-weight:900}
@@ -45,10 +78,15 @@
 .result-actions{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .result-actions .btn{width:100%}
 
-@media(max-width:900px){
-  .checkout-grid{grid-template-columns:1fr;gap:16px}
-  .checkout-page{padding:18px 0 64px}
-  .summary-top h1{font-size:18px}
-  .summary-price b{font-size:28px}
+@media(max-width:760px){
+  .checkout-page{padding:12px 0 72px}
+  .pay-panel{padding:16px 14px 16px;border-radius:22px}
+  .pay-hero{grid-template-columns:72px minmax(0,1fr);gap:12px}
+  .pay-hero img{width:72px;height:72px;border-radius:16px}
+  .pay-id h1{font-size:17px}
+  .pay-amount{grid-column:1 / -1;display:flex;align-items:baseline;justify-content:space-between;text-align:right;padding:12px 14px}
+  .pay-amount small{display:inline}
+  .pay-amount b{font-size:28px}
+  .pay-methods{grid-template-columns:1fr;gap:8px}
   .result-card{padding:26px 16px 20px}
 }

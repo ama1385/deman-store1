@@ -74,23 +74,25 @@
     document.title = "الدفع | " + (pay.store_name || "Deman.Store");
 
     root.innerHTML =
-      '<div class="checkout-grid">' +
-        '<section class="checkout-card" aria-label="ملخص الطلب">' +
-          '<span class="tag checkout-kicker"><i class="dot"></i>إتمام الشراء</span>' +
-          '<div class="summary-top"><img src="' + esc(img) + '" alt="">' +
-            '<div><h1>' + esc(product.name) + '</h1>' +
-            (quote.duration ? '<p>' + esc(quote.duration) + '</p>' : '') + '</div></div>' +
-          '<div class="summary-price"><div><small>المبلغ المستحق</small><div><b dir="ltr">' + esc(quote.amount_sar) + '</b><span>ر.س</span></div></div></div>' +
-          '<p class="checkout-note">السعر بالريال السعودي. بعد نجاح الدفع افتح ديسكورد وافتح تذكرة عشان نسلمك المنتج. إذا تبي، تقدر تشتري من السيرفر مباشرة.</p>' +
-          (discord ? '<div class="pay-fallback"><a class="btn btn-o" href="' + esc(discord) + '" target="_blank" rel="noopener">' + DISCORD + 'أو اشترِ عبر ديسكورد</a></div>' : '') +
-        '</section>' +
-        '<section class="checkout-card" aria-label="نموذج الدفع">' +
-          '<div class="pay-head"><h2>ادفع الآن</h2><p class="checkout-note">مدى، فيزا، وماستركارد، مع Apple Pay و STC Pay إذا كانت ظاهرة في النموذج.</p></div>' +
-          '<div class="pay-methods"><span>بطاقة</span><span>Apple Pay</span><span>STC Pay</span></div>' +
+      '<div class="pay-stage">' +
+        '<a class="pay-back" href="product.html?id=' + encodeURIComponent(product.id) + '">رجوع للمنتج</a>' +
+        '<article class="pay-panel" aria-label="إتمام الشراء">' +
+          '<header class="pay-hero">' +
+            '<img src="' + esc(img) + '" alt="">' +
+            '<div class="pay-id"><span class="tag"><i class="dot"></i>إتمام الشراء</span><h1>' + esc(product.name) + '</h1>' +
+              (quote.duration ? '<p>' + esc(quote.duration) + '</p>' : '') + '</div>' +
+            '<div class="pay-amount"><small>المبلغ</small><b dir="ltr">' + esc(quote.amount_sar) + '</b><span>ر.س</span></div>' +
+          '</header>' +
+          '<div class="pay-methods" aria-label="طرق الدفع">' +
+            '<div class="pay-method apple"><b>Apple Pay</b><span>يظهر زرّه على سفاري وأجهزة آبل</span></div>' +
+            '<div class="pay-method card"><b>البطاقة</b><span>مدى · فيزا · ماستركارد</span></div>' +
+            '<div class="pay-method stc"><b>STC Pay</b><span>من داخل نموذج الدفع</span></div>' +
+          '</div>' +
           '<p class="pay-alert" id="payError" hidden></p>' +
-          '<div class="pay-sheet"><div id="moyasar-form"></div></div>' +
-          '<p class="pay-apple">زر Apple Pay يظهر على سفاري وأجهزة آبل بعد تسجيل نطاق المتجر في لوحة ميسر.</p>' +
-        '</section>' +
+          '<div class="pay-form"><div id="moyasar-form"></div></div>' +
+          '<p class="pay-trust">دفع آمن ومشفّر عبر ميسر. ما نعتبر الطلب مكتملًا إلا بعد التحقق من المبلغ، والتسليم يصير بتذكرة في ديسكورد.</p>' +
+          (discord ? '<p class="pay-alt">تبي طريقة ثانية؟ <a href="' + esc(discord) + '" target="_blank" rel="noopener">' + DISCORD + 'أكمل عبر ديسكورد</a></p>' : '') +
+        '</article>' +
       '</div>';
 
     if (!window.Moyasar || typeof window.Moyasar.init !== "function") {
