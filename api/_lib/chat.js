@@ -45,6 +45,8 @@ function stripThinking(text) {
 function cleanReply(text, english) {
   let out = stripThinking(text).replace(/\s+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
   out = out.replace(/overset/ig, 'Deman.Store');
+  out = out.replace(/https?:\/\/nye\.00stores\.com\/?/gi, 'https://demanstore.vercel.app/');
+  out = out.replace(/nye\.00stores\.com/gi, 'demanstore.vercel.app');
   if (!out) return '';
   if (out.length > 1800) out = out.slice(0, 1800).trim();
   if (DISABLE_PROTECTION_RE.test(out)) {
