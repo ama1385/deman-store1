@@ -1,7 +1,7 @@
-import { json, methodNotAllowed } from './_lib/_http.js';
-import { SEED_CONFIG } from './_lib/_seed.js';
-import { loadConfig } from './_lib/_store.js';
-import { buildSystemPrompt } from './_lib/support-knowledge.js';
+import { json, methodNotAllowed } from './_http.js';
+import { SEED_CONFIG } from './_seed.js';
+import { loadConfig } from './_store.js';
+import { buildSystemPrompt } from './support-knowledge.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL = 'openai/gpt-oss-120b';
@@ -84,7 +84,7 @@ async function readBody(request) {
   catch { return { error: 'تعذر قراءة الرسالة. أعد الإرسال.', status: 400 }; }
 }
 
-export default { async fetch(request) {
+export async function handleChat(request) {
   if (request.method !== 'POST') return methodNotAllowed('POST');
 
   const apiKey = process.env.GROQ_API_KEY;
@@ -151,4 +151,4 @@ export default { async fetch(request) {
     console.error('chat: request failed', error && error.name ? error.name : 'error');
     return friendly(502);
   }
-}};
+}
