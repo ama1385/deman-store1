@@ -4,8 +4,9 @@
   if (/\/admin(\/|$)/.test(location.pathname)) return;
 
   var cfg = window.DEMAN_CHAT || {};
-  var BOT_NAME = cfg.name || "مساعد ديمان";
-  var GREETING = cfg.greeting || "هلا! أنا مساعد Deman.Store، كيف أقدر أساعدك؟";
+  var I = window.DEMAN_I18N || { en: false, t: function (s) { return s; } }, T = I.t;
+  var BOT_NAME = (I.en && cfg.name_en) || T(cfg.name || "مساعد ديمان");
+  var GREETING = (I.en && cfg.greeting_en) || T(cfg.greeting || "هلا! أنا مساعد Deman.Store، كيف أقدر أساعدك؟");
   var STORE_KEY = "deman.chat.v1";
   var MAX_CHARS = 800;
   var MAX_HISTORY = 12;
@@ -46,13 +47,13 @@
       '<header class="deman-chat-head">' +
         '<span class="deman-chat-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12Z"/></svg></span>' +
         '<div class="deman-chat-id"><b></b><small>Deman.Store</small></div>' +
-        '<button type="button" class="deman-chat-x" aria-label="إغلاق المحادثة">×</button>' +
+        '<button type="button" class="deman-chat-x" aria-label="' + T("إغلاق المحادثة") + '">×</button>' +
       "</header>" +
       '<div class="deman-chat-log" id="demanChatLog" role="log" aria-live="polite"></div>' +
       '<form class="deman-chat-form">' +
-        '<label class="deman-chat-sr" for="demanChatInput">رسالتك</label>' +
-        '<textarea id="demanChatInput" rows="1" maxlength="' + MAX_CHARS + '" placeholder="اكتب سؤالك..." enterkeyhint="send"></textarea>' +
-        '<button type="submit" aria-label="إرسال"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>' +
+        '<label class="deman-chat-sr" for="demanChatInput">' + T("رسالتك") + '</label>' +
+        '<textarea id="demanChatInput" rows="1" maxlength="' + MAX_CHARS + '" placeholder="' + T("اكتب سؤالك...") + '" enterkeyhint="send"></textarea>' +
+        '<button type="submit" aria-label="' + T("إرسال") + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>' +
       "</form>" +
     "</section>" +
     '<button type="button" class="deman-chat-fab" id="demanChatFab" aria-expanded="false" aria-controls="demanChatPanel">' +
@@ -140,7 +141,7 @@
   function paint() {
     log.replaceChildren();
     history.forEach(function (m) { log.appendChild(bubble(m.role, m.content, m.local ? "is-local" : "")); });
-    if (pending) log.appendChild(bubble("assistant", "يكتب...", "is-typing"));
+    if (pending) log.appendChild(bubble("assistant", T("يكتب..."), "is-typing"));
     log.scrollTop = log.scrollHeight;
   }
 
@@ -190,7 +191,7 @@
       body: JSON.stringify({ messages: payload })
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (data) {
-        if (!r.ok || !data.reply) throw new Error(data.error || "عذراً، صار خلل. حاول مرة ثانية أو كلم الدعم في الديسكورد.");
+        if (!r.ok || !data.reply) throw new Error(T(data.error || "عذراً، صار خلل. حاول مرة ثانية أو كلم الدعم في الديسكورد."));
         return data.reply;
       });
     }).then(function (reply) {
@@ -198,7 +199,7 @@
       history = validList(history);
       saveHistory(history);
     }).catch(function (err) {
-      history.push({ role: "assistant", content: err.message || "عذراً، صار خلل. حاول مرة ثانية.", local: true });
+      history.push({ role: "assistant", content: err.message || T("عذراً، صار خلل. حاول مرة ثانية."), local: true });
     }).then(function () {
       pending = false;
       sendBtn.disabled = false;
