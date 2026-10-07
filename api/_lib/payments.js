@@ -2,10 +2,9 @@ import { json, methodNotAllowed } from './_http.js';
 import { loadConfig, loadProducts } from './_store.js';
 
 /**
- * Catalog prices are USD. Customers are charged in SAR.
- * Keep this rate identical to USD_TO_SAR in js/app.js.
+ * Catalog prices are entered and stored in SAR, and customers are charged that same amount.
+ * Other currencies on the storefront are a display-only conversion (api/_lib/rates.js).
  */
-export const USD_TO_SAR = 3.75;
 export const CURRENCY = 'SAR';
 export const STORE_FALLBACK = 'Deman.Store';
 
@@ -16,12 +15,10 @@ const PAYMENT_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
 const MOYASAR_PAYMENT_URL = 'https://api.moyasar.com/v1/payments/';
 const MIN_HALALAS = 100;
 
-export function halalasFromUsd(usd) {
-  const n = Number(usd);
+export function halalasFromSar(sar) {
+  const n = Number(sar);
   if (!Number.isFinite(n) || n <= 0) return 0;
-  const usdCents = Math.round(n * 100);
-  const numerator = Math.round(USD_TO_SAR * 100);
-  return Math.floor((usdCents * numerator + 50) / 100);
+  return Math.round(n * 100);
 }
 
 export function sarLabel(halalas) {
@@ -50,7 +47,7 @@ function storeName(config) {
 }
 
 function quoteProduct(product) {
-  const amount = halalasFromUsd(product && product.price);
+  const amount = halalasFromSar(product && product.price);
   return {
     id: String(product.id),
     name: String(product.name || ''),
@@ -72,7 +69,6 @@ export async function handlePaymentsConfig(request) {
   return json({
     publishable_key: key,
     currency: CURRENCY,
-    usd_to_sar: USD_TO_SAR,
     store_name: storeName(config),
     discord_invite: discordInvite(config),
     methods: ['creditcard', 'applepay', 'stcpay'],
@@ -165,7 +161,7 @@ export async function handlePaymentsVerify(request) {
     });
   }
 
-  const expected = halalasFromUsd(product.price);
+  const expected = halalasFromSar(product.price);
   const amount = Number(body.amount);
   const currency = String(body.currency || '').toUpperCase();
   const status = String(body.status || '');

@@ -1,6 +1,6 @@
 import { json, methodNotAllowed } from './_http.js';
 import { SEED_CONFIG } from './_seed.js';
-import { loadConfig } from './_store.js';
+import { loadConfig, loadProducts } from './_store.js';
 import { buildSystemPrompt } from './support-knowledge.js';
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
@@ -182,11 +182,11 @@ export async function handleChat(request) {
     const normalized = normalizeMessages(parsed.body);
     if (normalized.error) return json({ error: normalized.error }, normalized.status);
 
-    const invite = await discordInvite();
+    const [invite, products] = await Promise.all([discordInvite(), loadProducts().catch(() => [])]);
     const latestUser = [...normalized.messages].reverse().find((m) => m.role === 'user');
     const english = isEnglish(latestUser && latestUser.content);
     const messages = [
-      { role: 'system', content: buildSystemPrompt(invite) },
+      { role: 'system', content: buildSystemPrompt(invite, products) },
       ...normalized.messages
     ];
     const controller = new AbortController();
