@@ -6,6 +6,10 @@
       "destination": "/api/health?route=chat"
     },
     {
+      "source": "/api/rates",
+      "destination": "/api/health?route=rates"
+    },
+    {
       "source": "/api/payments/config",
       "destination": "/api/health?route=payments-config"
     },
