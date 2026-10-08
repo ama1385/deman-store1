@@ -266,7 +266,7 @@
 
   /* ---------- settings ---------- */
   var SF = $("#setForm");
-  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "hero_title", "hero_subtitle", "announcement", "hero_title_en", "hero_subtitle_en", "announcement_en", "purchase_label", "total_sales_label", "published_reviews_label", "floating_discord_label", "live_visitors_count", "live_visitors_label", "purchase_popup_title", "purchase_popup_interval", "purchase_popup_duration"];
+  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "legal_note", "hero_title", "hero_subtitle", "announcement", "hero_title_en", "hero_subtitle_en", "announcement_en", "purchase_label", "total_sales_label", "published_reviews_label", "floating_discord_label", "live_visitors_count", "live_visitors_label", "purchase_popup_title", "purchase_popup_interval", "purchase_popup_duration"];
   function payRow(m) {
     m = m || {}; var ic = m.icon || "";
     return '<div class="rp pay"><div class="col"><input class="pm-name" placeholder="اسم الطريقة (مثلاً: STC Pay)" maxlength="60" value="' + esc(m.name) + '"></div>' +
