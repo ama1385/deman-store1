@@ -95,6 +95,10 @@
           '<p class="pay-alert" id="payError" hidden></p>' +
           '<div class="pay-form"><div id="moyasar-form"></div></div>' +
           '<p class="pay-trust">' + T("دفع آمن ومشفّر عبر ميسر. ما نعتبر الطلب مكتملًا إلا بعد التحقق من المبلغ، والتسليم يصير بتذكرة في ديسكورد.") + '</p>' +
+          '<p class="pay-terms">' + T("بإتمام الدفع أنت موافق على {terms} و{refund}.", {
+            terms: '<a href="terms.html" target="_blank" rel="noopener">' + T("الشروط والأحكام") + '</a>',
+            refund: '<a href="refund.html" target="_blank" rel="noopener">' + T("سياسة الاسترجاع") + '</a>'
+          }) + '</p>' +
           (discord ? '<p class="pay-alt">' + T("تبي طريقة ثانية؟") + ' <a href="' + esc(discord) + '" target="_blank" rel="noopener">' + DISCORD + T("أكمل عبر ديسكورد") + '</a></p>' : '') +
         '</article>' +
       '</div>';

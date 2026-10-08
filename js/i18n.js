@@ -239,6 +239,22 @@
     "فشلت عملية الدفع. جرّب مرة ثانية أو اشترِ عبر ديسكورد.": "The payment failed. Try again or buy via Discord.",
     "الدفع لم يكتمل بعد. إذا خُصم المبلغ حدّث الصفحة، أو افتح ديسكورد وأرسل رقم العملية.": "The payment isn't complete yet. If you were charged, refresh the page, or open Discord and send the transaction ID.",
 
+    /* policy pages + footer links */
+    "السياسات": "Policies",
+    "سياسة الاسترجاع": "Refund policy",
+    "الشروط والأحكام": "Terms & conditions",
+    "الخصوصية": "Privacy",
+    "تواصل معنا": "Contact us",
+    "سياسة الاسترجاع | Deman.Store": "Refund policy | Deman.Store",
+    "الشروط والأحكام | Deman.Store": "Terms & conditions | Deman.Store",
+    "سياسة الخصوصية | Deman.Store": "Privacy policy | Deman.Store",
+    "تواصل معنا | Deman.Store": "Contact us | Deman.Store",
+    "سياسة الاسترجاع في Deman.Store للمنتجات الرقمية والخدمات.": "Deman.Store refund policy for digital products and services.",
+    "الشروط والأحكام للشراء من Deman.Store.": "Terms and conditions for buying from Deman.Store.",
+    "كيف يتعامل Deman.Store مع بياناتك.": "How Deman.Store handles your data.",
+    "تواصل مع Deman.Store عبر سيرفر الديسكورد.": "Contact Deman.Store on our Discord server.",
+    "بإتمام الدفع أنت موافق على {terms} و{refund}.": "By completing the payment you agree to the {terms} and the {refund}.",
+
     /* support chat */
     "مساعد ديمان": "Deman Assistant",
     "هلا! أنا مساعد Deman.Store، كيف أقدر أساعدك؟": "Hi! I'm the Deman.Store assistant. How can I help?",
