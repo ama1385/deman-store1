@@ -16,6 +16,7 @@
     return /^https:\/\/(?:discord\.gg\/|discord\.com\/invite\/)[A-Za-z0-9-]+\/?$/.test(url) ? url : "";
   }
 
+  var I = window.DEMAN_I18N, T = I.t;
   var root = document.getElementById("result");
   var id = String(new URLSearchParams(location.search).get("id") || "").trim();
   var idOk = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
@@ -28,13 +29,13 @@
 
   function actions(discord) {
     var html = '<div class="result-actions">';
-    if (discord) html += '<a class="btn btn-p js-discord" href="' + esc(discord) + '" target="_blank" rel="noopener">افتح ديسكورد لاستلام المنتج</a>';
-    html += '<a class="btn btn-o" href="index.html">الرجوع للمتجر</a></div>';
+    if (discord) html += '<a class="btn btn-p js-discord" href="' + esc(discord) + '" target="_blank" rel="noopener">' + T("افتح ديسكورد لاستلام المنتج") + '</a>';
+    html += '<a class="btn btn-o" href="index.html">' + T("الرجوع للمتجر") + '</a></div>';
     return html;
   }
 
   if (!idOk) {
-    paint("bad", "ما وصلنا رقم العملية", "ارجع لصفحة الدفع وأعد المحاولة. إذا انخصم المبلغ، افتح ديسكورد وأرسل إثبات الدفع.", actions(""));
+    paint("bad", T("ما وصلنا رقم العملية"), T("ارجع لصفحة الدفع وأعد المحاولة. إذا انخصم المبلغ، افتح ديسكورد وأرسل إثبات الدفع."), actions(""));
     return;
   }
 
@@ -45,18 +46,19 @@
       var ref = '<p class="result-id" dir="ltr">' + esc(id) + '</p>';
       if (data && data.paid && data.ok) {
         var product = data.product || {};
-        var meta = '<div class="result-meta"><b>' + esc(product.name || "المنتج") + '</b>' +
-          (product.duration ? '<span>' + esc(product.duration) + '</span>' : '') +
+        var duration = product.duration ? (I.en ? I.durationEn(product.duration) : product.duration) : "";
+        var meta = '<div class="result-meta"><b>' + esc(product.name || T("المنتج")) + '</b>' +
+          (duration ? '<span>' + esc(duration) + '</span>' : '') +
           (data.amount_sar ? '<div class="result-sum" dir="ltr">' + esc(data.amount_sar) + ' <small>SAR</small></div>' : '') +
           ref + '</div>';
-        paint("ok", "تم الدفع", data.message || "تم تأكيد الدفع. افتح ديسكورد وافتح تذكرة عشان نسلمك المنتج.", meta + actions(discord));
+        paint("ok", T("تم الدفع"), T(data.message || "تم تأكيد الدفع. افتح ديسكورد وافتح تذكرة عشان نسلمك المنتج."), meta + actions(discord));
         return;
       }
       var kind = data && data.code === "account_inactive" ? "warn" : "bad";
-      var title = kind === "warn" ? "الحساب غير مفعّل" : "ما اكتمل الدفع";
-      paint(kind, title, (data && data.error) || "تعذر التحقق من الدفع. حدّث الصفحة، وإذا انخصم المبلغ افتح ديسكورد.", ref + actions(discord));
+      var title = kind === "warn" ? T("الحساب غير مفعّل") : T("ما اكتمل الدفع");
+      paint(kind, title, T((data && data.error) || "تعذر التحقق من الدفع. حدّث الصفحة، وإذا انخصم المبلغ افتح ديسكورد."), ref + actions(discord));
     })
     .catch(function () {
-      paint("bad", "تعذر التحقق", "ما قدرنا نأكد العملية مع ميسر. حدّث الصفحة، وإذا انخصم المبلغ افتح ديسكورد وأرسل رقم العملية.", '<p class="result-id" dir="ltr">' + esc(id) + '</p>' + actions(""));
+      paint("bad", T("تعذر التحقق"), T("ما قدرنا نأكد العملية مع ميسر. حدّث الصفحة، وإذا انخصم المبلغ افتح ديسكورد وأرسل رقم العملية."), '<p class="result-id" dir="ltr">' + esc(id) + '</p>' + actions(""));
     });
 })();

@@ -8,7 +8,7 @@ const STORE_URL = "https://demanstore.vercel.app/";
 const STORE_LABEL = "Deman.Store | متجر ديمان";
 
 const FACTS = `
-الأسعار بالدولار: يوم 2 دولار، أسبوع 5 دولار، شهر 15 دولار، سنة 60 دولار. الدفع: visa - master card - paypal - crypto
+الدفع: visa - master card - paypal - crypto
 الشراء من ${STORE_LABEL}: ${STORE_URL} ادخل واختر الباقة وأكمل الدفع. لا تعطِ أي رابط شراء غيره.
 التحميل بعد الشراء من ${STORE_URL} : الصفحة الرئيسية، الزر الأخضر بالأعلى «تحميل اللودر». إذا الزر غير ظاهر انتظر موظف الدعم في التكت. اختفاء الملف أو حظر التحميل: اقترح متصفحاً آخر، وإذا استمر حوّل التكت لموظف. فشل التحميل: متصفح غير Google Chrome. التحميل يعني الحصول على الملف وهو غير فك الضغط.
 المفتاح من ${STORE_URL} : بعد الدفع اضغط «عرض الكود». لا يوجد رابط منفصل. إذا لم يظهر تأكد من إكمال الدفع ثم صفحة الطلب، وإلا حوّل لموظف. المفتاح غير ملف التحميل.
@@ -30,7 +30,18 @@ Windows PC فقط، بلا قطعة خارجية. لا يعمل مباشرة ع�
 TensorRT لم يتحول أو PyTorch ظاهر: اسأل NVIDIA أو AMD أولاً ولا تحوّل قبل الخطوات. NVIDIA: انتظر 15 دقيقة، وإذا بقي PyTorch ادخل Engine وطفّئ الزر الثاني. AMD: Engine وطفّئ الزر الثاني.
 `.trim();
 
-export function buildSystemPrompt(discordInvite) {
+/** Price line built from the live catalog, so the assistant always quotes what the store shows. */
+function priceFacts(products) {
+  const items = (Array.isArray(products) ? products : [])
+    .filter((p) => p && p.visible !== false && Number(p.price) > 0)
+    .sort((a, b) => (Number(a.sort) || 0) - (Number(b.sort) || 0))
+    .slice(0, 20)
+    .map((p) => `${String(p.duration || p.name || "").trim().slice(0, 80)}: ${Number(p.price).toFixed(2)} ريال`);
+  if (!items.length) return "الأسعار: موجودة في صفحة المنتجات بالمتجر. لا تذكر سعراً من عندك.";
+  return `الأسعار بالريال السعودي وهي نفسها في المتجر: ${items.join("، ")}. العميل يقدر يغيّر عملة العرض من أعلى الموقع، لكن الخصم يتم بالريال. لا تذكر سعراً غير هذه.`;
+}
+
+export function buildSystemPrompt(discordInvite, products) {
   const link = String(discordInvite || "").trim();
   const discord = link
     ? `غير المذكور هنا: قل إن المعلومة غير متوفرة ووجّه لدعم الديسكورد هذا فقط: ${link}`
@@ -44,6 +55,7 @@ export function buildSystemPrompt(discordInvite) {
     `رابط المتجر الوحيد للشراء والتحميل والمفتاح: ${STORE_LABEL} ${STORE_URL}`,
     trial,
     discord,
+    priceFacts(products),
     FACTS
   ].join("\n");
 }

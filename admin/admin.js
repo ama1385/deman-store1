@@ -92,7 +92,7 @@
       var img = (p.images && p.images[0]) ? imgSrc(p.images[0]) : "/images/logo-512.png";
       return '<div class="card prow" data-id="' + esc(p.id) + '">' +
         '<img class="th" src="' + esc(img) + '" alt="" loading="lazy">' +
-        '<div><h4>' + esc(p.name) + '</h4><div class="meta"><b>' + esc(p.price) + ' ' + esc(p.currency || S.config.currency || "") + '</b>' +
+        '<div><h4>' + esc(p.name) + '</h4><div class="meta"><b>' + esc(p.price) + ' ' + esc(S.config.currency || "ر.س") + '</b>' +
         (p.duration ? '<span>⏱ ' + esc(p.duration) + '</span>' : '') + '<span>' + esc(catName(p.category)) + '</span><span>ترتيب: ' + esc(p.sort) + '</span>' +
         '<span>طلبات: ' + esc(p.purchases_count || 0) + '</span><span class="pill ' + (p.visible !== false ? 'on">ظاهر' : 'off">مخفي') + '</span></div></div>' +
         '<label class="tg vis" title="ظاهر/مخفي"><input type="checkbox" data-act="vis"' + (p.visible !== false ? " checked" : "") + '><i></i></label>' +
@@ -160,12 +160,15 @@
     $("#edTitle").textContent = S.edit ? "تعديل منتج" : "منتج جديد";
     F.reset();
     F.name.value = p.name || ""; F.description.value = p.description || "";
-    F.price.value = p.price != null ? p.price : ""; F.currency.value = p.currency || "";
+    F.price.value = p.price != null ? p.price : "";
     F.sort.value = p.sort != null ? p.sort : ""; F.duration.value = p.duration || ""; F.purchases_count.value = p.purchases_count != null ? p.purchases_count : 0;
     F.buy_link.value = p.buy_link || ""; F.short.value = p.short || "";
     F.old_price.value = p.old_price != null ? p.old_price : ""; F.badge.value = p.badge || "";
     F.features.value = (p.features || []).join("\n"); F.included.value = (p.included || []).join("\n");
     F.delivery.value = p.delivery || "";
+    F.short_en.value = p.short_en || ""; F.description_en.value = p.description_en || ""; F.badge_en.value = p.badge_en || "";
+    F.features_en.value = (p.features_en || []).join("\n"); F.included_en.value = (p.included_en || []).join("\n");
+    F.delivery_en.value = p.delivery_en || "";
     F.visible.checked = p.visible !== false; F.featured.checked = !!p.featured; F.demo.checked = !!p.demo;
     fillCats(p.category || (S.edit ? "" : ((S.config.categories || [])[1] || {}).id));
     S.images = (p.images || []).slice();
@@ -219,11 +222,13 @@
     if (S.images.some(function (u) { return /^blob:/.test(u); })) { toast("انتظر لين تخلص الصورة", "bad"); return; }
     var lines = function (v) { return v.split("\n").map(function (s) { return s.trim(); }).filter(Boolean); };
     var body = {
-      name: F.name.value, description: F.description.value, price: F.price.value, currency: F.currency.value,
+      name: F.name.value, description: F.description.value, price: F.price.value,
       sort: F.sort.value, duration: F.duration.value, category: F.category.value, buy_link: F.buy_link.value,
       visible: F.visible.checked, featured: F.featured.checked, demo: F.demo.checked, images: S.images,
       short: F.short.value, old_price: F.old_price.value, badge: F.badge.value, purchases_count: F.purchases_count.value,
-      features: lines(F.features.value), included: lines(F.included.value), delivery: F.delivery.value
+      features: lines(F.features.value), included: lines(F.included.value), delivery: F.delivery.value,
+      short_en: F.short_en.value, description_en: F.description_en.value, badge_en: F.badge_en.value,
+      features_en: lines(F.features_en.value), included_en: lines(F.included_en.value), delivery_en: F.delivery_en.value
     };
     if (body.buy_link && !/^https?:\/\//i.test(body.buy_link.trim())) { toast("رابط الشراء لازم يبدأ بـ https://", "bad"); return; }
     var b = $("#edSave"); busy(b, true);
@@ -261,7 +266,7 @@
 
   /* ---------- settings ---------- */
   var SF = $("#setForm");
-  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "hero_title", "hero_subtitle", "announcement", "purchase_label", "total_sales_label", "published_reviews_label", "floating_discord_label", "live_visitors_count", "live_visitors_label", "purchase_popup_title", "purchase_popup_interval", "purchase_popup_duration"];
+  var FIELDS = ["store_name", "brand_ar", "discord_invite", "currency", "domain", "hero_title", "hero_subtitle", "announcement", "hero_title_en", "hero_subtitle_en", "announcement_en", "purchase_label", "total_sales_label", "published_reviews_label", "floating_discord_label", "live_visitors_count", "live_visitors_label", "purchase_popup_title", "purchase_popup_interval", "purchase_popup_duration"];
   function payRow(m) {
     m = m || {}; var ic = m.icon || "";
     return '<div class="rp pay"><div class="col"><input class="pm-name" placeholder="اسم الطريقة (مثلاً: STC Pay)" maxlength="60" value="' + esc(m.name) + '"></div>' +
@@ -272,14 +277,17 @@
   }
   function catRow(c) {
     c = c || {};
-    return '<div class="rp cat"><div class="col"><input class="c-name" placeholder="اسم الفئة" maxlength="60" value="' + esc(c.name) + '"></div>' +
+    return '<div class="rp cat"><div class="col"><input class="c-name" placeholder="اسم الفئة" maxlength="60" value="' + esc(c.name) + '">' +
+      '<input class="c-name-en" placeholder="English name (optional)" maxlength="60" dir="ltr" value="' + esc(c.name_en) + '"></div>' +
       '<div class="col"><input class="c-id" placeholder="المعرّف (english-id)" maxlength="40" dir="ltr" value="' + esc(c.id) + '"></div>' +
       '<button type="button" class="btn btn-d rm-row" aria-label="حذف">✕</button></div>';
   }
   function faqRow(f) {
     f = f || {};
     return '<div class="rp faq"><div class="col"><input class="fq" placeholder="السؤال" maxlength="300" value="' + esc(f.q) + '">' +
-      '<textarea class="fa" rows="2" placeholder="الجواب">' + esc(f.a) + '</textarea></div>' +
+      '<textarea class="fa" rows="2" placeholder="الجواب">' + esc(f.a) + '</textarea>' +
+      '<input class="fq-en" placeholder="Question in English (optional)" maxlength="300" dir="ltr" value="' + esc(f.q_en) + '">' +
+      '<textarea class="fa-en" rows="2" placeholder="Answer in English (optional)" dir="ltr">' + esc(f.a_en) + '</textarea></div>' +
       '<button type="button" class="btn btn-d rm-row" aria-label="حذف">✕</button></div>';
   }
   function pad2(n){return String(n).padStart(2,"0");}
@@ -335,9 +343,9 @@
     body.categories = $$("#catList .rp").map(function (r) {
       var name = $(".c-name", r).value.trim(), id = $(".c-id", r).value.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, "-");
       if (!id && name) id = "cat-" + Math.random().toString(36).slice(2, 7);
-      return { id: id, name: name };
+      return { id: id, name: name, name_en: $(".c-name-en", r).value.trim() };
     }).filter(function (c) { return c.id && c.name; });
-    body.faq = $$("#faqList .rp").map(function (r) { return { q: $(".fq", r).value.trim(), a: $(".fa", r).value.trim() }; }).filter(function (f) { return f.q || f.a; });
+    body.faq = $$("#faqList .rp").map(function (r) { return { q: $(".fq", r).value.trim(), a: $(".fa", r).value.trim(), q_en: $(".fq-en", r).value.trim(), a_en: $(".fa-en", r).value.trim() }; }).filter(function (f) { return f.q || f.a; });
     body.recent_purchases = $$("#recentPurchasesList .recent-purchase").map(function(r){
       var buyer=$(".po-buyer",r).value.trim(), product_id=$(".po-product",r).value, raw=$(".po-time",r).value;
       var d=raw?new Date(raw):new Date();

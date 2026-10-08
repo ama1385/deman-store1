@@ -2,7 +2,9 @@ import crypto from 'node:crypto';
 
 const ALLOWED = [
   'name','category','featured','badge','duration','short','description','price','old_price','rating','reviews_count',
-  'features','included','delivery','faq','images','visible','sort','buy_link','currency','demo','purchases_count'
+  'features','included','delivery','faq','images','visible','sort','buy_link','currency','demo','purchases_count',
+  // Optional English copy, shown when the visitor switches the storefront to English.
+  'short_en','description_en','badge_en','features_en','included_en','delivery_en'
 ];
 
 function str(v, max=5000) { return String(v == null ? '' : v).slice(0,max); }
@@ -28,6 +30,12 @@ export function cleanProduct(input, previous = {}) {
   o.features=arr(o.features,40).map(x=>str(x,300).trim()).filter(Boolean);
   o.included=arr(o.included,40).map(x=>str(x,300).trim()).filter(Boolean);
   o.delivery=str(o.delivery,1500);
+  o.short_en=str(o.short_en,1000).trim();
+  o.description_en=str(o.description_en,5000);
+  o.badge_en=str(o.badge_en,120).trim();
+  o.features_en=arr(o.features_en,40).map(x=>str(x,300).trim()).filter(Boolean);
+  o.included_en=arr(o.included_en,40).map(x=>str(x,300).trim()).filter(Boolean);
+  o.delivery_en=str(o.delivery_en,1500);
   o.faq=arr(o.faq,40).map(f=>({q:str(f?.q,300).trim(),a:str(f?.a,1200).trim()})).filter(f=>f.q||f.a);
   o.images=arr(o.images,12).map(x=>str(x,1000).trim()).filter(x=>/^(https:\/\/|\/api\/img\/|\/images\/)/i.test(x));
   o.visible=bool(o.visible,true); o.featured=bool(o.featured,false); o.demo=bool(o.demo,false);

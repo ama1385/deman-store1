@@ -114,3 +114,6 @@ body.deman-chat-open .purchase-toast{visibility:hidden;pointer-events:none}
 @media(prefers-reduced-motion:reduce){
   .deman-chat-fab,.deman-chat-tip{transition:none}
 }
+
+/* English (LTR) */
+html[dir=ltr] .deman-chat-panel{direction:ltr;text-align:left}

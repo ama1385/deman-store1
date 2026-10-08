@@ -70,7 +70,7 @@ div#mysr .text-red-600{color:#e7d4fb !important;font-size:12px}
 .result-card.pending .result-ico{background:rgba(210,155,253,.14);color:var(--p)}
 .result-card h1{font-size:28px;font-weight:900;margin-bottom:8px}
 .result-card .lead{color:#d9d3e2;font-size:15.5px;line-height:1.8}
-.result-meta{margin:18px 0;padding:14px;border-radius:16px;background:rgba(0,0,0,.28);border:1px solid rgba(210,155,253,.2);text-align:right}
+.result-meta{margin:18px 0;padding:14px;border-radius:16px;background:rgba(0,0,0,.28);border:1px solid rgba(210,155,253,.2);text-align:start}
 .result-meta b{display:block;font-size:16px}
 .result-meta span{color:var(--mut);font-size:13px}
 .result-sum{margin-top:6px;font-size:22px;font-weight:900}
@@ -84,9 +84,13 @@ div#mysr .text-red-600{color:#e7d4fb !important;font-size:12px}
   .pay-hero{grid-template-columns:72px minmax(0,1fr);gap:12px}
   .pay-hero img{width:72px;height:72px;border-radius:16px}
   .pay-id h1{font-size:17px}
-  .pay-amount{grid-column:1 / -1;display:flex;align-items:baseline;justify-content:space-between;text-align:right;padding:12px 14px}
+  .pay-amount{grid-column:1 / -1;display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;text-align:start;padding:12px 14px}
   .pay-amount small{display:inline}
   .pay-amount b{font-size:28px}
   .pay-methods{grid-template-columns:1fr;gap:8px}
   .result-card{padding:26px 16px 20px}
 }
+
+/* Approximate amount in the visitor's own currency; the charge itself is always in SAR. */
+.pay-amount .js-approx{margin-top:4px;color:var(--mut);font-size:12.5px;font-weight:700}
+@media (max-width:760px){.pay-amount .js-approx{flex-basis:100%}}
