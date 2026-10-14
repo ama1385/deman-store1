@@ -263,15 +263,21 @@
     var m = s.match(/(\d+(?:\.\d+)?)/), n = m ? Number(m[1]) : (/يومين|أسبوعين|اسبوعين|شهرين|سنتين/.test(s) ? 2 : 1);
     return n * u;
   }
-  function baseName(p) { var n = String(p.name || ""); return n.indexOf(" — ") > 0 ? n.split(" — ")[0].trim() : ""; }
+  // مفتاح "عائلة" المنتج: نفس المنتج بمدد مختلفة فقط. نشيل المدة من الاسم — "Name (1 Week)" أو "Name — شهر" —
+  // ونقارن الباقي. الفئة وحدها ما تكفي: منتجين مختلفين في نفس الفئة ما يصيرون خيارات مدة لبعض.
+  var DUR_WORD = "day|days|week|weeks|month|months|year|years|lifetime|forever|hour|hours|يوم|يومين|أيام|ايام|ساعة|ساعه|أسبوع|اسبوع|أسبوعين|اسبوعين|أسابيع|شهر|شهرين|أشهر|اشهر|شهور|سنة|سنه|سنتين|سنوات|عام|مدى الحياة|دائم";
+  var DUR_PAREN = new RegExp("[(\\[][^()\\[\\]]*(?:" + DUR_WORD + ")[^()\\[\\]]*[)\\]]", "gi");
+  function familyOf(p) {
+    if (p.group) return "g:" + String(p.group).trim().toLowerCase();
+    var n = toLatin(String(p.name || ""));
+    var i = n.indexOf(" — "); if (i > 0) n = n.slice(0, i);
+    return n.replace(DUR_PAREN, " ").replace(/\s+/g, " ").trim().toLowerCase();
+  }
   function planLabel(p) { var parts = String(p.name || "").split(" — "); return p.duration ? durationText(p.duration) : (parts[1] ? parts.slice(1).join(" — ") : p.name); }
   function plansOf(p, all) {
-    var bn = baseName(p), list;
-    if (p.category) {
-      list = all.filter(function (x) { return x.category === p.category; });
-      var same = bn ? list.filter(function (x) { return baseName(x) === bn; }) : [];
-      if (same.length >= 2) list = same;
-    } else list = bn ? all.filter(function (x) { return !x.category && baseName(x) === bn; }) : [p];
+    var fam = familyOf(p);
+    var list = fam ? all.filter(function (x) { return familyOf(x) === fam; }) : [p];
+    if (list.length < 2) return [p];
     if (list.indexOf(p) < 0) list.push(p);
     var allD = list.every(function (x) { return daysOf(x) > 0; });
     return list.slice().sort(function (a, b) { return allD ? daysOf(a) - daysOf(b) : (Number(a.price) || 0) - (Number(b.price) || 0); });
