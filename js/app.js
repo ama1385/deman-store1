@@ -189,6 +189,95 @@
     setTimeout(showOne,1800);
   }
 
+  // ===== Review popups (demo) =====
+  // Pop-up تقييم جديد بنفس ديزاين "شراء جديد". يختار اسم عشوائي + تعليق + منتج + نجوم.
+  // الفواصل الزمنية متفاوتة (قصيرة وطويلة) عشان ما يبين إنه مجدول.
+  var REVIEW_NAMES_AR=["نواف","راشد","ريم","احمد الحربي","عبدالله","سلطان","خالد","فيصل","ماجد","تركي","سعود","يزيد","مشعل","منصور","بدر","ناصر","عبدالعزيز","محمد","سامي","وليد","صالح","عبدالرحمن","هاني","رياض","فهد","طلال","عمر","بندر","زياد","دانة","شهد","لمى","نورة","سارة","منى","هند","ليان","روان","جود","رهف","مها"];
+  var REVIEW_NAMES_EN=["Nawaf","Rashid","Reem","Ahmed","Abdullah","Sultan","Khaled","Faisal","Majed","Turki","Saud","Yazeed","Mishal","Mansour","Badr","Nasser","Mohammed","Waleed","Saleh","Fahad","Omar","Bandar","Dana","Shahad","Lama","Noura","Sara","Hind","Layan","Rawan","Reef","Maha"];
+  var REVIEW_TEXTS_AR=[
+    "البرنامج ممتاز وسريع ما توقعت كذا والله","خدمة احترافية والدعم سريع يرد خلال دقائق","جربته أسبوع كامل ما حسيت بأي مشكلة شكراً لكم","أسعار منافسة وجودة ممتازة أنصح فيه","التسليم كان فوري بعد الدفع مباشرة ممتاز","والله شغل نظيف ومحترم, شكراً","شريته وجربته اللعب صار ممتع أكثر","ما توقعت الجودة بهذا المستوى صراحة","الدعم على الديسكورد خرافي يردون بسرعة","منتج أسطوري بالفعل يستاهل كل ريال","خدمتهم سريعة وملتزمين بالوقت الله يعطيكم العافية","بصراحة متحمس أكرر الطلب مرة ثانية","ما شاء الله شغل احترافي والتسعير مناسب","جربت منتجات ثانية ما تجي من قريب لهذا","أفضل متجر تعاملت معه بهذا المجال","سريع في التسليم وآمن ومافي أي مشاكل","أول مرة أجرب والنتيجة فاقت التوقعات","استخدمته بدون مشاكل والدعم جاهز دائم","شكراً على الاهتمام والمتابعة المستمرة","قمة في الاحترام والشغل الصحيح","لعبت بدون أي حظر ولا مشاكل الحمدلله","والله يستاهل التجربة, بتندم إذا ما جربته","خدمة سريعة وأسعار معقولة ومنتج يعتمد عليه","وصلني المنتج في دقائق معدودة ممتاز","راح أرجع أشتري منكم إن شاء الله","تجربة ممتازة من أول مرة طلبي بسم الله","مرتاح جداً على الشراء, وما تأخروا علي","الموقع نظيف والطلب سهل والتسليم سريع"
+  ];
+  var REVIEW_TEXTS_EN=[
+    "The product is excellent and fast — exceeded my expectations.",
+    "Professional service, support replied in minutes.",
+    "Tried it for a full week with no issues at all. Thanks!",
+    "Fair prices and top quality, highly recommend.",
+    "Delivery was instant right after payment.",
+    "Clean and respectful work, thank you.",
+    "Bought and tried it — the game is way more fun now.",
+    "Honestly didn't expect this level of quality.",
+    "Discord support is amazing, they reply very fast.",
+    "Legendary product, worth every riyal.",
+    "Fast, committed, and professional. Thank you!",
+    "Already excited to order again.",
+    "Great work and reasonable pricing.",
+    "Tried other products — none come close to this one.",
+    "Best store I've dealt with in this field.",
+    "Fast delivery, safe, and zero problems.",
+    "First time trying, and the result exceeded expectations.",
+    "Used it without any issues, support is always ready.",
+    "Thanks for the great follow up and care.",
+    "Peak respect and solid work.",
+    "Played with no bans or issues, thank God.",
+    "Honestly worth it — you'll regret skipping it."
+  ];
+  function initReviewPopups(products){
+    if(!products || !products.length) return;
+    var en=CFG.review_popup_enabled;
+    if(en===false || en==="false") return;
+    // نفس عنصر "شراء جديد" — يتناوب الاثنين على نفس المكان في اليسار
+    var box=document.getElementById('purchaseToast');
+    if(!box){box=document.createElement('aside');box.id='purchaseToast';box.className='purchase-toast';box.setAttribute('aria-live','polite');box.hidden=true;document.body.appendChild(box);}
+    var customNames=Array.isArray(CFG.review_popup_names)?CFG.review_popup_names.filter(function(x){return x&&String(x).trim();}):[];
+    var customTexts=Array.isArray(CFG.review_popup_texts)?CFG.review_popup_texts.filter(function(x){return x&&String(x).trim();}):[];
+    var names=customNames.length?customNames:(EN?REVIEW_NAMES_EN:REVIEW_NAMES_AR);
+    var texts=customTexts.length?customTexts:(EN?REVIEW_TEXTS_EN:REVIEW_TEXTS_AR);
+    var title=T(String(CFG.review_popup_title||'تقييم جديد').trim()||'تقييم جديد');
+    var duration=Math.max(2,Math.min(15,Math.floor(Number(CFG.review_popup_duration)||6)))*1000;
+    var minGap=Math.max(5,Math.floor(Number(CFG.review_popup_min_delay)||25))*1000;
+    var maxGap=Math.max(minGap/1000+5,Math.floor(Number(CFG.review_popup_max_delay)||600))*1000;
+    function rand(a){return a[Math.floor(Math.random()*a.length)];}
+    function nextGap(){return Math.floor(minGap+Math.random()*(maxGap-minGap));}
+    function starIcon(){return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.95 5.98 6.6.96-4.78 4.65 1.13 6.57L12 17.77l-5.9 3.0 1.13-6.57L2.45 9.54l6.6-.96z"/></svg>';}
+    function showOne(){
+      var p=rand(products); if(!p){ setTimeout(showOne,nextGap()); return; }
+      var name=rand(names), text=rand(texts);
+      // نجوم 5 أغلب الوقت و4 أحياناً (طبيعي)
+      var starsN=Math.random()<0.78?5:4;
+      var stars=''; for(var i=0;i<5;i++) stars+=(i<starsN?'★':'☆');
+      // "قبل X" وقت مختلف لكل بوب-أب
+      var ago; if(EN){
+        var mins=1+Math.floor(Math.random()*55);
+        ago=mins<=1?'Just now':(mins<60?mins+' minutes ago':Math.floor(mins/60)+' hours ago');
+      } else {
+        var m=1+Math.floor(Math.random()*55);
+        if(m===1) ago='قبل دقيقة'; else if(m===2) ago='قبل دقيقتين';
+        else if(m<60) ago='قبل '+m+' '+(m<=10?'دقائق':'دقيقة');
+        else { var h=Math.floor(m/60); ago=h===1?'قبل ساعة':'قبل '+h+' ساعات'; }
+      }
+      var who = EN
+        ? '<strong>'+esc(name)+'</strong> rated'
+        : 'قيّم <strong>'+esc(name)+'</strong>';
+      box.innerHTML=
+        '<div class="purchase-toast-icon">'+starIcon()+'</div>'+
+        '<div class="purchase-toast-copy">'+
+          '<b><span class="purchase-toast-confetti">⭐</span>'+esc(title)+'</b>'+
+          '<p>'+who+'</p>'+
+          '<a href="product.html?id='+encodeURIComponent(p.id)+'">'+esc(p.name)+'</a>'+
+          '<div class="review-toast-stars" aria-label="'+esc(T("{n} من 5",{n:starsN}))+'">'+stars+'</div>'+
+          '<p class="review-toast-text">"'+esc(text)+'"</p>'+
+          '<small>'+esc(ago)+'</small>'+
+        '</div>';
+      box.hidden=false; requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add('show');});});
+      setTimeout(function(){
+        box.classList.remove('show');
+        setTimeout(function(){ box.hidden=true; setTimeout(showOne,nextGap()); },420);
+      },duration);
+    }
+    // أول بوب-أب بعد فترة قصيرة عشوائية (3-18 ثانية) عشان كل جلسة تختلف
+    setTimeout(showOne, 3000+Math.floor(Math.random()*15000));
+  }
+
   function home(products, reviews) {
     var fq = $("#faqList");
     if (fq) fq.innerHTML = (CFG.faq || []).map(function (f, i) { return "<details class=\"rv\"" + (i === 0 ? " open" : "") + "><summary>" + esc(L(f, "q")) + "</summary><p>" + esc(L(f, "a")) + "</p></details>"; }).join("");
@@ -502,6 +591,7 @@
     if (page === "home") home(r[1] || [], r[2] || []);
     else if (page === "product") product(r[1] || [], r[2] || []);
     initPurchasePopups(r[1] || []);
+    initReviewPopups(r[1] || []);
     observe();
     I.restoreScroll();
   }).catch(function (e) {
