@@ -313,6 +313,7 @@
     $("#catList").innerHTML = (c.categories || []).filter(function (x) { return x.id !== "all"; }).map(catRow).join("");
     $("#faqList").innerHTML = (c.faq || []).map(faqRow).join("");
     var pp=$("#purchasePopupEnabled"); if(pp) pp.checked=c.purchase_popup_enabled!==false;
+    var rv=$("#reviewPopupEnabled"); if(rv) rv.checked=c.review_popup_enabled===true;
     var pr=$("#recentPurchasesList"); if(pr) pr.innerHTML=(c.recent_purchases||[]).map(recentPurchaseRow).join("");
   }
   $("#addPay").addEventListener("click", function () { $("#payList").insertAdjacentHTML("beforeend", payRow()); $("#payList .rp:last-child .pm-name").focus(); });
@@ -336,6 +337,7 @@
     FIELDS.forEach(function (k) { body[k] = SF[k].value; });
     body.live_visitors_count=Math.max(0,Math.floor(Number(body.live_visitors_count)||0));
     body.purchase_popup_enabled=$("#purchasePopupEnabled") ? $("#purchasePopupEnabled").checked : true;
+    body.review_popup_enabled=$("#reviewPopupEnabled") ? $("#reviewPopupEnabled").checked : false;
     body.purchase_popup_interval=Math.max(5,Math.min(120,Math.floor(Number(body.purchase_popup_interval)||12)));
     body.purchase_popup_duration=Math.max(2,Math.min(15,Math.floor(Number(body.purchase_popup_duration)||6)));
     if (body.discord_invite && !/^https?:\/\//i.test(body.discord_invite.trim())) { toast("رابط الديسكورد لازم يبدأ بـ https://", "bad"); return; }
