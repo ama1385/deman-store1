@@ -621,6 +621,8 @@ body.has-mbar .discord-fab{bottom:82px}
 body.has-mbar .purchase-toast{bottom:168px}
 @media(max-width:900px){body.has-mbar .purchase-toast{bottom:calc(150px + env(safe-area-inset-bottom))}}
 @media(prefers-reduced-motion:reduce){.purchase-toast{transition:none}.purchase-toast.show{transform:none}}
+.review-toast-stars{color:#ffd36a;letter-spacing:2px;font-size:13px;margin-top:5px;line-height:1}
+.review-toast-text{margin:5px 0 0!important;color:#d8d3df!important;font-size:12px!important;line-height:1.5!important;max-height:3em;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 
 
 /* ===== V6 price + duration alignment fix ===== */
