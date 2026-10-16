@@ -241,11 +241,8 @@
     function starIcon(){return '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.6l2.95 5.98 6.6.96-4.78 4.65 1.13 6.57L12 17.77l-5.9 3.0 1.13-6.57L2.45 9.54l6.6-.96z"/></svg>';}
     function showOne(){
       var p=rand(products); if(!p){ setTimeout(showOne,nextGap()); return; }
-      var name=rand(names), text=rand(texts);
-      // نجوم 5 أغلب الوقت و4 أحياناً (طبيعي)
-      var starsN=Math.random()<0.78?5:4;
-      var stars=''; for(var i=0;i<5;i++) stars+=(i<starsN?'★':'☆');
-      // "قبل X" وقت مختلف لكل بوب-أب
+      var name=rand(names);
+      // "قبل X" وقت مختلف لكل بوب-أب — نفس حساب "شراء جديد"
       var ago; if(EN){
         var mins=1+Math.floor(Math.random()*55);
         ago=mins<=1?'Just now':(mins<60?mins+' minutes ago':Math.floor(mins/60)+' hours ago');
@@ -256,7 +253,7 @@
         else { var h=Math.floor(m/60); ago=h===1?'قبل ساعة':'قبل '+h+' ساعات'; }
       }
       var who = EN
-        ? '<strong>'+esc(name)+'</strong> rated'
+        ? '<strong>'+esc(name)+'</strong> left a review'
         : 'قيّم <strong>'+esc(name)+'</strong>';
       box.innerHTML=
         '<div class="purchase-toast-icon">'+starIcon()+'</div>'+
@@ -264,8 +261,6 @@
           '<b><span class="purchase-toast-confetti">⭐</span>'+esc(title)+'</b>'+
           '<p>'+who+'</p>'+
           '<a href="product.html?id='+encodeURIComponent(p.id)+'">'+esc(p.name)+'</a>'+
-          '<div class="review-toast-stars" aria-label="'+esc(T("{n} من 5",{n:starsN}))+'">'+stars+'</div>'+
-          '<p class="review-toast-text">"'+esc(text)+'"</p>'+
           '<small>'+esc(ago)+'</small>'+
         '</div>';
       box.hidden=false; requestAnimationFrame(function(){requestAnimationFrame(function(){box.classList.add('show');});});
