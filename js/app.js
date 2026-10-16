@@ -223,8 +223,8 @@
   ];
   function initReviewPopups(products){
     if(!products || !products.length) return;
-    var en=CFG.review_popup_enabled;
-    if(en===false || en==="false") return;
+    // الميزة مطفية افتراضياً؛ تشتغل فقط لما المسؤول يفعّلها من لوحة التحكم
+    if(CFG.review_popup_enabled!==true) return;
     // نفس عنصر "شراء جديد" — يتناوب الاثنين على نفس المكان في اليسار
     var box=document.getElementById('purchaseToast');
     if(!box){box=document.createElement('aside');box.id='purchaseToast';box.className='purchase-toast';box.setAttribute('aria-live','polite');box.hidden=true;document.body.appendChild(box);}
@@ -302,11 +302,40 @@
       if(total>0 || realReviews>0){proof.hidden=false;proof.innerHTML=(total>0?'<div class="proof-item"><span class="proof-ico">'+ICONS.bag+'</span><div><b class="js-count proof-count" data-count="'+total+'">0</b><small>'+esc(T(CFG.total_sales_label || 'طلب مكتمل'))+'</small></div></div>':'')+(realReviews>0?'<div class="proof-item"><span class="proof-ico">'+ICONS.star+'</span><div><b class="js-count proof-count" data-count="'+realReviews+'">0</b><small>'+esc(T(CFG.published_reviews_label || 'تقييم من العملاء'))+'</small></div></div>':'');animateCounts(proof);}
     }
     function productName(id) { var p=products.filter(function(x){return x.id===id;})[0]; return p ? p.name : ''; }
+    function makeFakeReview(){
+      var names=(EN?REVIEW_NAMES_EN:REVIEW_NAMES_AR);
+      var texts=(EN?REVIEW_TEXTS_EN:REVIEW_TEXTS_AR);
+      var p=products[Math.floor(Math.random()*products.length)];
+      return {
+        name: names[Math.floor(Math.random()*names.length)],
+        text: texts[Math.floor(Math.random()*texts.length)],
+        stars: Math.random()<0.78?5:4,
+        product_id: p?p.id:'',
+        verified: true,
+        _synthetic: true
+      };
+    }
+    var synthetic=[];
     function renderReviews(list) {
       var box=$('#revs');
       list=(list||[]).filter(function(r){return r && r.status!=='hidden' && !r.demo;});
-      box.innerHTML=list.map(function(r,i){var pn=productName(r.product_id);return '<article class="rev rv" style="transition-delay:'+(i%6)*55+'ms"><div class="rev-head"><div class="rev-person"><span class="av">'+esc((r.name||'؟').charAt(0))+'</span><div><b>'+esc(r.name)+'</b>'+(pn?'<span>'+esc(pn)+'</span>':'')+'</div></div><div class="stars" aria-label="'+esc(T("{n} من 5",{n:r.stars}))+'">'+starStr(r.stars)+'</div></div><p class="rev-text">“'+esc(r.text)+'”</p><div class="rev-badges">'+(r.verified?'<span class="rev-badge verified">'+T("✓ شراء موثّق")+'</span>':'')+'</div></article>';}).join('') || '<p style="color:var(--mut);text-align:center;grid-column:1/-1">'+T("ما فيه آراء منشورة حتى الآن — كن أول من يشارك تجربته.")+'</p>';
+      var combined=synthetic.concat(list);
+      box.innerHTML=combined.map(function(r,i){var pn=productName(r.product_id);return '<article class="rev rv" style="transition-delay:'+(i%6)*55+'ms"><div class="rev-head"><div class="rev-person"><span class="av">'+esc((r.name||'؟').charAt(0))+'</span><div><b>'+esc(r.name)+'</b>'+(pn?'<span>'+esc(pn)+'</span>':'')+'</div></div><div class="stars" aria-label="'+esc(T("{n} من 5",{n:r.stars}))+'">'+starStr(r.stars)+'</div></div><p class="rev-text">“'+esc(r.text)+'”</p><div class="rev-badges">'+(r.verified?'<span class="rev-badge verified">'+T("✓ شراء موثّق")+'</span>':'')+'</div></article>';}).join('') || '<p style="color:var(--mut);text-align:center;grid-column:1/-1">'+T("ما فيه آراء منشورة حتى الآن — كن أول من يشارك تجربته.")+'</p>';
       observe();
+    }
+    // عند تفعيل "الآراء التلقائية" من لوحة التحكم، نبدأ بعدد أولي ونضيف واحد كل فترة عشوائية
+    if (CFG.review_popup_enabled===true && products.length){
+      var seed=3+Math.floor(Math.random()*3); // 3-5 آراء كبداية
+      for(var _=0;_<seed;_++) synthetic.push(makeFakeReview());
+      (function tick(){
+        var gap=(40+Math.floor(Math.random()*260))*1000; // 40 ثانية إلى 5 دقائق
+        setTimeout(function(){
+          synthetic.unshift(makeFakeReview());
+          if(synthetic.length>12) synthetic.length=12;
+          renderReviews(reviews || []);
+          tick();
+        }, gap);
+      })();
     }
     renderReviews(reviews || []);
     var rp=$('#reviewProduct'); if(rp) rp.innerHTML='<option value="">'+T("— اختر المنتج —")+'</option>'+products.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name)+'</option>';}).join('');
